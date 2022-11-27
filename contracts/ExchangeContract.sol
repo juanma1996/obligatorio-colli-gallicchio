@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
+import "./TokenContract.sol";
+
 
 abstract contract ExchangeContract {
 
@@ -46,6 +48,11 @@ abstract contract ExchangeContract {
         _tokenVault = tokenVault;
         _erc20Contract = erc20Contract;
         _invariant = msg.value * tokenAmount;
+    }
+
+    function getExchangeRate() external view returns (uint256){
+        uint256 tokenAmount = TokenContract(_tokenVault).balanceOf(_owner);
+        return (tokenAmount - (_invariant / _owner.balance));
     }
 
     /// ------------------------------------------------------------------------------------------------------------------------------------------
