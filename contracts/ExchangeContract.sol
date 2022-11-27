@@ -105,6 +105,20 @@ abstract contract ExchangeContract {
         _feePercentage = feePercentage;
     }
 
+    function setTokenVault(address tokenVault) external view{
+        _isZeroAddress(tokenVault, '_tokenVault');
+        if (_isSmartContractAddress(tokenVault) == true){
+            revert("_tokenVault cannot be a contract");
+        }
+        _isOwnerProtocol(msg.sender);
+        if (tokenVault.balance <= 0){
+            revert("_tokenVault has no balance");
+        }
+        //TODO: Además, debe tener una autorización para que el contrato del exchange pueda operarlo, de lo contrario revertir con el mensaje‘Invalid tokenVault address’
+        
+        _tokenVault = tokenVault;
+    }
+
     /// ------------------------------------------------------------------------------------------------------------------------------------------
     /// PRIVATE FUNCTIONS
     /// ------------------------------------------------------------------------------------------------------------------------------------------
