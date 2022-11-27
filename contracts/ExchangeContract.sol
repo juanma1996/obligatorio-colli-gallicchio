@@ -39,7 +39,6 @@ abstract contract ExchangeContract {
         }
         _isZeroValue(tokenAmount, '_tokenAmount');
         //TODO:
-        //HasSufficientBalance(tokenVault, tokenAmount)
         uint256 tokenVaultAmount = TokenContract(_tokenVault).balanceOf(_tokenVault);
         if (tokenVaultAmount < tokenAmount){
             revert("Insufficient tokens in the vault");
@@ -57,6 +56,24 @@ abstract contract ExchangeContract {
     function getExchangeRate() external view returns (uint256){
         uint256 tokenAmount = TokenContract(_tokenVault).balanceOf(_owner);
         return (tokenAmount - (_invariant / _owner.balance));
+    }
+
+    function buyToken(uint256 _amountToBuy) external{
+        _isZeroValue(_amountToBuy, '_amountToBuy');
+        uint256  etherAmountNeeded = calculateEtherAmount(_amountToBuy);
+        uint256 feeToCharge = etherAmountNeeded * _feePercentage;
+        etherAmountNeeded += feeToCharge;
+        
+        if (msg.value < etherAmountNeeded){
+            revert("Insufficient ethers");
+        }
+
+        bool result = TokenContract(_tokenVault).transfer(msg.sender, _amountToBuy);
+        if (result){
+            _feesCollected += feeToCharge;
+        }else{
+            revert("An error has occurred");
+        }
     }
 
     /// ------------------------------------------------------------------------------------------------------------------------------------------
