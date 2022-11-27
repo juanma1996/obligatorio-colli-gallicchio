@@ -98,9 +98,22 @@ abstract contract ExchangeContract {
         }
     }
 
+    function setFeePercentage(uint256 feePercentage) external view{
+        _isZeroValue(feePercentage, '_feePercentage');
+        _isOwnerProtocol(msg.sender);
+
+        _feePercentage = feePercentage;
+    }
+
     /// ------------------------------------------------------------------------------------------------------------------------------------------
     /// PRIVATE FUNCTIONS
     /// ------------------------------------------------------------------------------------------------------------------------------------------
+    function _isOwnerProtocol(address _address) private view {
+        if (_owner != _address) {
+            revert("Not authorized");
+        }
+    }
+    
     function _isZeroValue(uint256 _value, string memory _parameterName) internal virtual pure {
         if (_value == 0) {
             string memory _message = string.concat("Invalid ", _parameterName, " value");
