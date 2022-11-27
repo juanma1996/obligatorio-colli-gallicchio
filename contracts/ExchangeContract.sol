@@ -10,7 +10,7 @@ abstract contract ExchangeContract {
     uint8 private _decimalsToken;
     uint8 private _feePercentage;
     address private _owner;
-    uint8 private _invariant;
+    uint256 private _invariant;
     uint8 private _feesCollected;
 
     /*
@@ -23,7 +23,7 @@ abstract contract ExchangeContract {
      * @param _symbol The symbol of the token
      */
      
-    constructor(address tokenVault, address erc20Contract , uint256 tokenAmount)
+    constructor(address tokenVault, address erc20Contract , uint256 tokenAmount) payable
 
     {
          // Checks
@@ -45,6 +45,7 @@ abstract contract ExchangeContract {
         _owner = msg.sender;
         _tokenVault = tokenVault;
         _erc20Contract = erc20Contract;
+        _invariant = msg.value * tokenAmount;
     }
 
     /// ------------------------------------------------------------------------------------------------------------------------------------------
