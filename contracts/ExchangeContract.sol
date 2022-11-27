@@ -47,6 +47,9 @@ abstract contract ExchangeContract {
         _erc20Contract = erc20Contract;
     }
 
+    function calculateEtherAmount (uint256 _tokenAmount) external {
+        _isZeroValue(_tokenAmount, '_tokenAmount');
+    }
     /// ------------------------------------------------------------------------------------------------------------------------------------------
     /// PRIVATE FUNCTIONS
     /// ------------------------------------------------------------------------------------------------------------------------------------------
