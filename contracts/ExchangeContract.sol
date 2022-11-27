@@ -40,6 +40,10 @@ abstract contract ExchangeContract {
         _isZeroValue(tokenAmount, '_tokenAmount');
         //TODO:
         //HasSufficientBalance(tokenVault, tokenAmount)
+        uint256 tokenVaultAmount = TokenContract(_tokenVault).balanceOf(_tokenVault);
+        if (tokenVaultAmount < tokenAmount){
+            revert("Insufficient tokens in the vault");
+        }
 
         // Effects
         _decimalsToken = 18;
