@@ -70,6 +70,28 @@ abstract contract ExchangeContract {
 
         bool result = TokenContract(_tokenVault).transfer(msg.sender, _amountToBuy);
         if (result){
+            if (msg.value > etherAmountNeeded){
+                msg.sender.transfer(msg.value - etherAmountNeeded);
+            }
+            _feesCollected += feeToCharge;
+        }else{
+            revert("An error has occurred");
+        }
+    }
+
+    function buyEther(uint256 _amountToExchage) external{
+        _isZeroValue(_amountToExchage, '_amountToExchage');
+        uint256 senderTokenAmount = TokenContract(_tokenVault).balanceOf(msg.sender);
+        if (senderTokenAmount < _amountToExchage){
+            revert("Insufficient balance");
+        }
+        uint256  etherAmountNeeded = calculateEtherAmount(_amountToExchage);
+        uint256 feeToCharge = etherAmountNeeded * _feePercentage;
+        etherAmountNeeded -= feeToCharge;
+
+        bool result = TokenContract(_tokenVault).transferFrom(msg.sender, _tokenVault, _amountToExchage);
+        if (result){
+            msg.sender.transfer(etherAmountNeeded);
             _feesCollected += feeToCharge;
         }else{
             revert("An error has occurred");
