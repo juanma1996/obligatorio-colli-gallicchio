@@ -53,7 +53,7 @@ abstract contract ExchangeContract {
         _invariant = msg.value * tokenAmount;
     }
 
-    function getExchangeRate() external view returns (uint256){
+    function getExchangeRate() public returns (uint256){
         uint256 tokenAmount = TokenContract(_tokenVault).balanceOf(_owner);
         return (tokenAmount - (_invariant / _owner.balance));
     }
@@ -81,10 +81,7 @@ abstract contract ExchangeContract {
 
     function buyEther(uint256 _amountToExchage) external{
         _isZeroValue(_amountToExchage, '_amountToExchage');
-        uint256 senderTokenAmount = TokenContract(_tokenVault).balanceOf(msg.sender);
-        if (senderTokenAmount < _amountToExchage){
-            revert("Insufficient balance");
-        }
+        _isInsuffientBalance(msg.sender, _amountToExchage);
         uint256  etherAmountNeeded = calculateEtherAmount(_amountToExchage);
         uint256 feeToCharge = etherAmountNeeded * _feePercentage;
         etherAmountNeeded -= feeToCharge;
@@ -103,6 +100,17 @@ abstract contract ExchangeContract {
         _isOwnerProtocol(msg.sender);
 
         _feePercentage = feePercentage;
+    }
+
+    function deposit() external{
+        _isOwnerProtocol(msg.sender);
+        uint256 amountToExchange = getExchangeRate() * msg.value;
+        _isInsuffientBalance(msg.sender, amountToExchange);
+        
+        bool result = TokenContract(_tokenVault).transferFrom(msg.sender, _tokenVault, amountToExchange);
+        if (!result){
+            revert("An error has occurred");
+        }
     }
 
     /// ------------------------------------------------------------------------------------------------------------------------------------------
@@ -133,5 +141,12 @@ abstract contract ExchangeContract {
         bytes32 codeHash;    
         assembly { codeHash := extcodehash(_address) }
         return (codeHash != zeroAccountHash && codeHash != 0x0);
+    }
+
+    function _isInsuffientBalance(address _address, uint256 _amountToExchage) internal virtual pure {
+        uint256 senderTokenAmount = TokenContract(_tokenVault).balanceOf(_address);
+        if (senderTokenAmount < _amountToExchage){
+            revert("Insufficient balance");
+        }
     }
 }
