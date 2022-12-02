@@ -113,6 +113,15 @@ abstract contract ExchangeContract {
         }
     }
 
+    function withdrawFeesAmount() external{
+        _isOwnerProtocol(msg.sender);
+        if (_feesCollected < 500000000000000000){//TODO: check if this is right
+            revert("Insufficient amount of fees");
+        }
+
+        msg.sender.transfer(_feesCollected);
+    }
+
     /// ------------------------------------------------------------------------------------------------------------------------------------------
     /// PRIVATE FUNCTIONS
     /// ------------------------------------------------------------------------------------------------------------------------------------------
