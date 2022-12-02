@@ -28,6 +28,12 @@ abstract contract BridgeContractAbstract {
         _blacklistAddress[_invalidAddress] = true;
     }
 
+    function removeAddressFromBlackList(address _invalidAddress) public virtual{
+        _isZeroAddress(_invalidAddress, '_invalidAddress');//TODO: por letra dice: en cuyo caso revierte con el error ‘Invalid address _invalidAddress’. 
+        _isNotBlacklistAddress(_invalidAddress);
+        _blacklistAddress[_invalidAddress] = false;
+    }
+
     /// ------------------------------------------------------------------------------------------------------------------------------------------
     /// PRIVATE FUNCTIONS
     /// ------------------------------------------------------------------------------------------------------------------------------------------
@@ -42,6 +48,12 @@ abstract contract BridgeContractAbstract {
     function _isBlacklistAddress(address _address) internal virtual {
         if (_blacklistAddress[_address]) {
             revert("Address already in the list");
+        }
+    }
+
+    function _isNotBlacklistAddress(address _address) internal virtual {
+        if (_blacklistAddress[_address] == false) {
+            revert("Address not found");
         }
     }
 }
