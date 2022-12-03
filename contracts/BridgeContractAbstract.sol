@@ -6,17 +6,23 @@ abstract contract BridgeContractAbstract {
 
     /// STATE VARIABLES
     address private _owner;
+    address private _erc20Contract;
 
     /// STATE MAPPINGS
     mapping(address => bool) public _blacklistAddress;
 
-    constructor()
+    constructor(address vaulContract)
     {
         _owner = msg.sender;
+        _erc20Contract = vaulContract;
     }
 
     function owner() public virtual view returns (address){
         return _owner;
+    }
+
+    function erc20Contract() public virtual view returns (address){
+        return _erc20Contract;
     }
 
     function addAddressToBlackList(address _invalidAddress) public virtual{
