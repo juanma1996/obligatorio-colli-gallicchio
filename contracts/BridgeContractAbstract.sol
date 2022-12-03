@@ -51,15 +51,28 @@ abstract contract BridgeContractAbstract {
         }
     }
 
-    function _isBlacklistAddress(address _address) internal virtual {
+    function _isBlacklistAddress(address _address) internal virtual view {
         if (_blacklistAddress[_address]) {
             revert("Address already in the list");
         }
     }
 
-    function _isNotBlacklistAddress(address _address) internal virtual {
+    function _isNotBlacklistAddress(address _address) internal virtual view {
         if (_blacklistAddress[_address] == false) {
             revert("Address not found");
+        }
+    }
+
+    function _isOwnerProtocol(address _address) internal virtual view {
+        if (_owner != _address) {
+            revert("Not authorized");
+        }
+    }
+
+    function _isZeroValue(uint256 _value, string memory _parameterName) internal virtual pure {
+        if (_value == 0) {
+            string memory _message = string.concat( _parameterName, " must be greater than zero");
+            revert(_message);
         }
     }
 }
