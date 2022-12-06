@@ -22,8 +22,10 @@ contract TokenContract is TokenContractAbstract
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
    
     constructor(string memory _name, string memory _symbol) TokenContractAbstract(_name, _symbol){
-         _maxSupplyToken = 500000;
-        _totalSupplyToken = 500000;}
+        _maxSupplyToken = 500000;
+        _totalSupplyToken = 500000;
+        balanceOf[msg.sender] = 500000;
+    }
     
     function totalSupply() public view returns (uint256)
     {
@@ -98,8 +100,6 @@ contract TokenContract is TokenContractAbstract
      * @notice Allows `_spender` to withdraw from sender account multiple times, up to the `_value` amount
      * On success must fire the `Approval` event.
      * @dev If this function is called multiple times it overwrites the current allowance with `_value`
-     * @dev Throw if allowance tries to be set to a new value, higher than zero, for the same spender, 
-     * with a current allowance different that zero. Message: "approve - Invalid allowance amount. Set to zero first"
      * @dev Throw if `_spender` is zero address. Message: "approve - Invalid parameter: _spender"
      * @dev Throw if `_value` exceeds the sender's balance. Message: "approve - Insufficient balance"
      * @param _spender It is the spender account address
@@ -111,10 +111,6 @@ contract TokenContract is TokenContractAbstract
         string memory _methodName = 'approve';
         _isZeroAddress(_spender, _methodName, '_spender');
         _hasSufficientBalance(msg.sender, _value, _methodName);
-        uint256 currentAllowance = allowance[msg.sender][_spender];
-        if(_value > 0 && currentAllowance > 0) {    // Omit this validation "&& _value != currentAllowance" to prevent store the same value again
-            revert(_concatMessage(_methodName, " - Invalid allowance amount. Set to zero first", ""));
-        }
 
         // Effects
         allowance[msg.sender][_spender] = _value;
