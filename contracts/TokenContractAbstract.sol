@@ -69,6 +69,13 @@ abstract contract TokenContractAbstract {
         }
     }
 
+    function _isZeroAmount(uint256 _value, string memory _methodName, string memory _parameterName) internal virtual pure {
+        if (_value == 0) {
+            string memory _message = _concatMessage(_methodName, " - Invalid parameter: ", _parameterName);
+            revert(_message);
+        }
+    }
+
     function _isZeroAddress(address _address, string memory _methodName, string memory _parameterName) internal virtual pure {
         if (_address == address(0)) {
             string memory _message = _concatMessage(_methodName, " - Invalid parameter: ", _parameterName);
