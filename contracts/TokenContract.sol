@@ -5,12 +5,27 @@ import "./TokenContractAbstract.sol";
 contract TokenContract is TokenContractAbstract 
 {
 
+    uint256 private _maxSupplyToken;
+    uint256 private _totalSupplyToken;
+    
      /// EVENTS
     /// @notice Trigger when tokens are transferred
     /// @dev On new tokens creation, trigger with the `from` address set to zero address
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
    
-    constructor(string memory _name, string memory _symbol) TokenContractAbstract(_name, _symbol){}
+    constructor(string memory _name, string memory _symbol) TokenContractAbstract(_name, _symbol){
+         _maxSupplyToken = 500000;
+        _totalSupplyToken = 500000;}
+    
+    function totalSupply() public view returns (uint256)
+    {
+        return _totalSupplyToken;
+    }
+
+    function maxSupply() public view returns (uint256)
+    {
+        return _maxSupplyToken;
+    }
 
     /**
      * @notice Transfers `_value` amount of tokens from sender to address `_to`. On success must fire the `Transfer` event.
