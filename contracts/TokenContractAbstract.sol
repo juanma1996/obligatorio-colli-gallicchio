@@ -8,10 +8,7 @@ abstract contract TokenContractAbstract {
     string private  _nameToken = "";
     string private _symbolToken = "";
     uint8 private _decimalsToken;
-    uint256 private _totalSupplyToken;
-    uint256 private _maxSupplyToken;
-
-     /// STATE MAPPINGS
+    /// STATE MAPPINGS
     mapping(address => uint256) public balanceOf;
 
     /**
@@ -32,8 +29,7 @@ abstract contract TokenContractAbstract {
         _nameToken = _name;
         _symbolToken = _symbol;
         _decimalsToken = 18;
-        _maxSupplyToken = 500000;
-        _totalSupplyToken = 500000;
+       
     }
 
     function name() public virtual view returns (string memory){
@@ -48,11 +44,6 @@ abstract contract TokenContractAbstract {
     function decimals() public virtual view returns (uint8)
     {
         return _decimalsToken;
-    }
-
-    function totalSupply() public virtual view returns (uint256)
-    {
-        return _totalSupplyToken;
     }
 
 
@@ -72,6 +63,13 @@ abstract contract TokenContractAbstract {
     }
 
     function _isZeroValue(uint256 _value, string memory _methodName, string memory _parameterName) internal virtual pure {
+        if (_value == 0) {
+            string memory _message = _concatMessage(_methodName, " - Invalid parameter: ", _parameterName);
+            revert(_message);
+        }
+    }
+
+    function _isZeroAmount(uint256 _value, string memory _methodName, string memory _parameterName) internal virtual pure {
         if (_value == 0) {
             string memory _message = _concatMessage(_methodName, " - Invalid parameter: ", _parameterName);
             revert(_message);

@@ -53,7 +53,7 @@ abstract contract ExchangeContract {
         _invariant = msg.value * tokenAmount;
     }
 
-    function getExchangeRate() external view returns (uint256){
+    function getExchangeRate() public returns (uint256){
         uint256 tokenAmount = TokenContract(_tokenVault).balanceOf(_owner);
         return (tokenAmount - (_invariant / _owner.balance));
     }
@@ -81,10 +81,7 @@ abstract contract ExchangeContract {
 
     function buyEther(uint256 _amountToExchage) external{
         _isZeroValue(_amountToExchage, '_amountToExchage');
-        uint256 senderTokenAmount = TokenContract(_tokenVault).balanceOf(msg.sender);
-        if (senderTokenAmount < _amountToExchage){
-            revert("Insufficient balance");
-        }
+        _isInsuffientBalance(msg.sender, _amountToExchage);
         uint256  etherAmountNeeded = calculateEtherAmount(_amountToExchage);
         uint256 feeToCharge = etherAmountNeeded * _feePercentage;
         etherAmountNeeded -= feeToCharge;
@@ -105,18 +102,24 @@ abstract contract ExchangeContract {
         _feePercentage = feePercentage;
     }
 
-    function setTokenVault(address tokenVault) external view{
-        _isZeroAddress(tokenVault, '_tokenVault');
-        if (_isSmartContractAddress(tokenVault) == true){
-            revert("_tokenVault cannot be a contract");
-        }
+    function deposit() external{
         _isOwnerProtocol(msg.sender);
-        if (tokenVault.balance <= 0){
-            revert("_tokenVault has no balance");
-        }
-        //TODO: Además, debe tener una autorización para que el contrato del exchange pueda operarlo, de lo contrario revertir con el mensaje‘Invalid tokenVault address’
+        uint256 amountToExchange = getExchangeRate() * msg.value;
+        _isInsuffientBalance(msg.sender, amountToExchange);
         
-        _tokenVault = tokenVault;
+        bool result = TokenContract(_tokenVault).transferFrom(msg.sender, _tokenVault, amountToExchange);
+        if (!result){
+            revert("An error has occurred");
+        }
+    }
+
+    function withdrawFeesAmount() external{
+        _isOwnerProtocol(msg.sender);
+        if (_feesCollected < 500000000000000000){//TODO: check if this is right
+            revert("Insufficient amount of fees");
+        }
+
+        msg.sender.transfer(_feesCollected);
     }
 
     /// ------------------------------------------------------------------------------------------------------------------------------------------
@@ -147,5 +150,12 @@ abstract contract ExchangeContract {
         bytes32 codeHash;    
         assembly { codeHash := extcodehash(_address) }
         return (codeHash != zeroAccountHash && codeHash != 0x0);
+    }
+
+    function _isInsuffientBalance(address _address, uint256 _amountToExchage) internal virtual pure {
+        uint256 senderTokenAmount = TokenContract(_tokenVault).balanceOf(_address);
+        if (senderTokenAmount < _amountToExchage){
+            revert("Insufficient balance");
+        }
     }
 }
