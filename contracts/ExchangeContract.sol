@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "./TokenContract.sol";
+import "./interfaces/ITokenContract.sol";
 
 
 abstract contract ExchangeContract {
@@ -39,7 +39,7 @@ abstract contract ExchangeContract {
         }
         _isZeroValue(tokenAmount, '_tokenAmount');
         //TODO:
-        uint256 tokenVaultAmount = TokenContract(_tokenVault).balanceOf(_tokenVault);
+        uint256 tokenVaultAmount = ITokenContract(_erc20Contract).balanceOf(_tokenVault);
         if (tokenVaultAmount < tokenAmount){
             revert("Insufficient tokens in the vault");
         }
@@ -54,7 +54,7 @@ abstract contract ExchangeContract {
     }
 
     function getExchangeRate() public returns (uint256){
-        uint256 tokenAmount = TokenContract(_tokenVault).balanceOf(_owner);
+        uint256 tokenAmount = ITokenContract(_erc20Contract).balanceOf(_owner);
         return (tokenAmount - (_invariant / _owner.balance));
     }
 
@@ -68,7 +68,7 @@ abstract contract ExchangeContract {
             revert("Insufficient ethers");
         }
 
-        bool result = TokenContract(_tokenVault).transfer(msg.sender, _amountToBuy);
+        bool result = ITokenContract(_erc20Contract).transfer(msg.sender, _amountToBuy);
         if (result){
             if (msg.value > etherAmountNeeded){
                 msg.sender.transfer(msg.value - etherAmountNeeded);
@@ -86,7 +86,7 @@ abstract contract ExchangeContract {
         uint256 feeToCharge = etherAmountNeeded * _feePercentage;
         etherAmountNeeded -= feeToCharge;
 
-        bool result = TokenContract(_tokenVault).transferFrom(msg.sender, _tokenVault, _amountToExchage);
+        bool result = ITokenContract(_erc20Contract).transferFrom(msg.sender, _tokenVault, _amountToExchage);
         if (result){
             msg.sender.transfer(etherAmountNeeded);
             _feesCollected += feeToCharge;
@@ -107,7 +107,7 @@ abstract contract ExchangeContract {
         uint256 amountToExchange = getExchangeRate() * msg.value;
         _isInsuffientBalance(msg.sender, amountToExchange);
         
-        bool result = TokenContract(_tokenVault).transferFrom(msg.sender, _tokenVault, amountToExchange);
+        bool result = ITokenContract(_erc20Contract).transferFrom(msg.sender, _tokenVault, amountToExchange);
         if (!result){
             revert("An error has occurred");
         }
@@ -120,6 +120,23 @@ abstract contract ExchangeContract {
         }
 
         msg.sender.transfer(_feesCollected);
+    }
+
+    function setTokenVault(address tokenVault) external view{
+        _isZeroAddress(tokenVault, '_tokenVault');
+        if (_isSmartContractAddress(tokenVault) == true){
+            revert("_tokenVault cannot be a contract");
+        }
+        _isOwnerProtocol(msg.sender);
+        if (tokenVault.balance <= 0){
+            revert("_tokenVault has no balance");
+        }
+        uint256 result = ITokenContract(_erc20Contract).allowance(_tokenVault, address(this));
+        if (result <= 0){
+            revert("Invalid tokenVault address");
+        }
+        
+        _tokenVault = tokenVault;
     }
 
     /// ------------------------------------------------------------------------------------------------------------------------------------------
@@ -153,7 +170,7 @@ abstract contract ExchangeContract {
     }
 
     function _isInsuffientBalance(address _address, uint256 _amountToExchage) internal virtual pure {
-        uint256 senderTokenAmount = TokenContract(_tokenVault).balanceOf(_address);
+        uint256 senderTokenAmount = ITokenContract(_erc20Contract).balanceOf(_address);
         if (senderTokenAmount < _amountToExchage){
             revert("Insufficient balance");
         }
