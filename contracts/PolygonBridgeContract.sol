@@ -7,6 +7,10 @@ import "./interfaces/ITokenContract.sol";
 contract PolygonBridgeContract is BridgeContractAbstract 
 {
     /// EVENTS
+    /// @notice Trigger when tokens need to be burn on ERC-20 contract
+    /// @dev Trigger with the `from` address and token amount
+    event TransferToEthereum(address indexed _to, uint256 _tokenAmount);
+
     /// @notice Trigger when tokens are minted on Polygon
     /// @dev Trigger with the `to` address and token amount
     event MintOrder(address indexed _to, uint256 _tokenAmount);
@@ -26,5 +30,15 @@ contract PolygonBridgeContract is BridgeContractAbstract
         }
 
         emit MintOrder(_to, _tokenAmount);(_to, _tokenAmount); 
+    }
+
+    function transferToEthereum(uint256 _tokenAmount) external{
+        _isZeroValue(_tokenAmount, '_tokenAmount');
+        uint256 tokenVaultAmount = ITokenContract(erc20Contract()).balanceOf(msg.sender);
+        if (tokenVaultAmount < _tokenAmount){
+            revert("_tokenAmount value exceed balance");
+        }
+
+        emit TransferToEthereum(msg.sender, _tokenAmount);
     }
 }
