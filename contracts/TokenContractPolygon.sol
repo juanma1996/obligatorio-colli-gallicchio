@@ -41,6 +41,27 @@ contract TokenContractPolygon is TokenContractAbstract
         emit Transfer(address(0), msg.sender, _amountToMint);
     }
 
+    /**
+     * @notice Returns ethers in exchange for burning an amount of tokens from '_from' account, at a parity of 1 to 1
+     * @dev Throw if `_value` is zero. Message: "burn - Invalid parameter: _value"
+     * @dev Throw if `_from` account has insufficient tokens to burn. Message: "burn - Insufficient balance"
+     * @param _value It is the number of new tokens to be burned
+     */
+    function burn(uint256 _value) external {
+        // Checks
+        string memory _methodName = 'burn';
+        _isZeroAmount(_value, _methodName, '_value');
+        _hasSufficientBalance(msg.sender, _value, _methodName);
+
+        // Effects
+        balanceOf[msg.sender] -= _value;
+        totalSupplyPolygon -= _value;
+        //TODO: quien le paga? el address del exchange? O el address del erc20 o el del owner?
+        // emit Burn(_from, msg.sender, _value);
+        //TODO: hay que pagarle? Como sabemos cuanto? Hay que preguntarle al Exchange?
+        // payable(_from).transfer(_value);
+    }
+
     /// ------------------------------------------------------------------------------------------------------------------------------------------
     /// PRIVATE FUNCTIONS
     /// ------------------------------------------------------------------------------------------------------------------------------------------
