@@ -2,7 +2,7 @@
 pragma solidity 0.8.16;
 
 import "./BridgeContractAbstract.sol";
-import "./TokenContract.sol";
+import "./interfaces/ITokenContract.sol";
 
 contract PolygonBridgeContract is BridgeContractAbstract 
 {
@@ -20,7 +20,7 @@ contract PolygonBridgeContract is BridgeContractAbstract
         if (_blacklistAddress[_to]) {
             revert("_to address is in blacklist");
         }
-        uint256 totalSupply = TokenContract(erc20Contract()).totalSupply();
+        uint256 totalSupply = ITokenContract(erc20Contract()).totalSupply();
         if (totalSupply < _tokenAmount) {
             revert("_tokenAmount exceeds max supply");
         }
