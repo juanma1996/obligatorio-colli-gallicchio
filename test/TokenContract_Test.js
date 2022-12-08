@@ -22,19 +22,20 @@ const name = "Obli_Token";
 const symbol = "OTKN";
 
 
-describe("Contract tests", () => {
+describe("Token Contract tests", () => {
     before(async () => {
         console.log("-----------------------------------------------------------------------------------");
-        console.log(" -- Contract tests start");
+        console.log(" -- Token Contract tests start");
         console.log("-----------------------------------------------------------------------------------");
 
         // Get Signer and provider
         [signer, account1, account2, account3] = await ethers.getSigners();
         provider = ethers.provider;
 
-        // Deploy student contract
+        // Deploy Token Contract
         const contractFactory = await ethers.getContractFactory(contractPath, signer);
         contractInstance = await contractFactory.deploy(name, symbol);
+        
     });
 
     describe("Constructor tests", () => {
@@ -59,22 +60,22 @@ describe("Contract tests", () => {
 
     describe("Transfer tests", () => {
         it("Try transfer to zero address", async () => {
-            const amountToTransfer = 1;
+            const amountToTransfer = ethers.utils.parseEther("1");
             await expect(contractInstance.transfer(zeroAddress, amountToTransfer)).to.be.revertedWith("transfer - Invalid parameter: _to");
         });
 
         it("Try transfer zero amount", async () => {
-            const amountToTransfer = 0;
+            const amountToTransfer = ethers.utils.parseEther("0");
             await expect(contractInstance.transfer(account1.address, amountToTransfer)).to.be.revertedWith("transfer - Invalid parameter: _value");
         });
 
         it("Try transfer to the same account", async () => {
-            const amountToTransfer = 1;
+            const amountToTransfer = ethers.utils.parseEther("1");
             await expect(contractInstance.transfer(signer.address, amountToTransfer)).to.be.revertedWith("transfer - Invalid recipient, same as remittent");
         });
 
         it("Try transfer with insufficient balance", async () => {
-            const amountToTransfer = 1;
+            const amountToTransfer = ethers.utils.parseEther("1");
             const newInstance = await contractInstance.connect(account1);
             await expect(newInstance.transfer(account2.address, amountToTransfer)).to.be.revertedWith("transfer - Insufficient balance");
         });
@@ -82,8 +83,8 @@ describe("Contract tests", () => {
         it("Transfer 10 tokens to account1", async () => {
             const signerBalanceBefore = await contractInstance.balanceOf(signer.address);
             const account1BalanceBefore = await contractInstance.balanceOf(account1.address);
-            const amountToTransfer = 10;
-           
+            const amountToTransfer = ethers.utils.parseEther("10");
+          
             const tx = await contractInstance.transfer(account1.address, amountToTransfer);
 
             tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
@@ -120,17 +121,17 @@ describe("Contract tests", () => {
 
     describe("Approve tests", () => {
         it("Try approve to zero address", async () => {
-            const amountToApprove = 1;
+            const amountToApprove = ethers.utils.parseEther("1");
             await expect(contractInstance.approve(zeroAddress, amountToApprove)).to.be.revertedWith("approve - Invalid parameter: _spender");
         });
 
         it("Try approve with insufficient balance", async () => {
-            const amountToApprove = 500001;
+            const amountToApprove = ethers.utils.parseEther("500001");
             await expect(contractInstance.approve(account1.address, amountToApprove)).to.be.revertedWith("approve - Insufficient balance");
         });
 
         it("Set approve for 10 tokens", async () => {
-            const amountToApprove = 10;
+            const amountToApprove = ethers.utils.parseEther("10");
             const tx = await contractInstance.approve(account1.address, amountToApprove);
 
             tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
@@ -231,37 +232,37 @@ describe("Contract tests", () => {
 
     describe("TransferFrom tests", () => {
         it("Try TransferFrom from zero address", async () => {
-            const amountToTransfer = 1;
+            const amountToTransfer = ethers.utils.parseEther("1");
             await expect(contractInstance.transferFrom(zeroAddress, signer.address, amountToTransfer)).to.be.revertedWith("transferFrom - Invalid parameter: _from");
         });
         
         it("Try TransferFrom to zero address", async () => {
-            const amountToTransfer = 1;
+            const amountToTransfer = ethers.utils.parseEther("1");
             await expect(contractInstance.transferFrom(signer.address, zeroAddress, amountToTransfer)).to.be.revertedWith("transferFrom - Invalid parameter: _to");
         });
 
         it("Try TransferFrom zero amount", async () => {
-            const amountToTransfer = 0;
+            const amountToTransfer = ethers.utils.parseEther("0");
             await expect(contractInstance.transferFrom(signer.address, account1.address, amountToTransfer)).to.be.revertedWith("transferFrom - Invalid parameter: _value");
         });
 
         it("Try TransferFrom to the same account", async () => {
-            const amountToTransfer = 1;
+            const amountToTransfer = ethers.utils.parseEther("1");
             await expect(contractInstance.transferFrom(signer.address, signer.address, amountToTransfer)).to.be.revertedWith("transferFrom - Invalid recipient, same as remittent");
         });
 
         it("Try TransferFrom with insufficient balance", async () => {
-            const amountToTransfer = 500001;
+            const amountToTransfer = ethers.utils.parseEther("500001");
             await expect(contractInstance.transferFrom(account2.address, signer.address, amountToTransfer)).to.be.revertedWith("transferFrom - Insufficient balance");
         });
         
         it("Try TransferFrom with no allowance", async () => {
-            const amountToTransfer = 1;
+            const amountToTransfer = ethers.utils.parseEther("1");
             await expect(contractInstance.transferFrom(account1.address, signer.address, amountToTransfer)).to.be.revertedWith("transferFrom - Insufficent allowance");
         });
 
         it("Try TransferFrom with insufficent allowance", async () => {
-            const amountToTransfer = 30;
+            const amountToTransfer = ethers.utils.parseEther("30");
             const newInstance = await contractInstance.connect(account1);
             await expect(newInstance.transferFrom(signer.address, account1.address, amountToTransfer)).to.be.revertedWith("transferFrom - Insufficent allowance");
         });        
@@ -270,7 +271,7 @@ describe("Contract tests", () => {
             const signerBalanceBefore = await contractInstance.balanceOf(signer.address);
             const account1BalanceBefore = await contractInstance.balanceOf(account1.address);
             
-            const amountToTransfer = 10;
+            const amountToTransfer = ethers.utils.parseEther("10");
             const tx = await contractInstance.transferFrom(signer.address, account1.address, amountToTransfer);
 
             tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
