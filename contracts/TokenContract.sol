@@ -85,7 +85,6 @@ contract TokenContract is TokenContractAbstract
     function transferFrom(address _from, address _to, uint256 _value) external {
         // TODO: Implement method
         // Checks
-       // console.log("Account 3 check 4 ", _to );
         string memory _methodName = 'transferFrom';
         _isZeroAddress(_from, _methodName, '_from');
         _isZeroAddress(_to, _methodName, '_to');
@@ -93,12 +92,9 @@ contract TokenContract is TokenContractAbstract
         _isValidRecipient(_from, _to, _methodName);
         _hasSufficientBalance(_from, _value, _methodName);
         _isAuthorized(_from, msg.sender, _value, _methodName);
- //console.log("Cantidad", _value);
- // console.log("From", _from);
- //  console.log("To", _value);
+
         // Effects
         balanceOf[_from] -= _value;
-      //  console.log("Account 3 check ",_to );
         balanceOf[_to] += _value;
         
         emit Transfer(msg.sender, _to, _value);

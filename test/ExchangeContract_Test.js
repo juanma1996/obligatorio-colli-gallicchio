@@ -41,15 +41,16 @@ describe("Exchange Contract tests", () => {
         contractInstance = await contractFactory.deploy(name, symbol);
 
         // Deploy Exchange Contract
-        const amountToStartPool = ethers.utils.parseEther("2000");
-        const amount= ethers.utils.parseEther("1500");
+        const amountToStartPool = ethers.utils.parseEther("1000");
+        const amountToTokenVault = ethers.utils.parseEther("1000");
+        const amount= ethers.utils.parseEther("50");
         const exchangeContractFactory = await ethers.getContractFactory(exchangeContractPath, signer);
 
        const transactionCount = await signer.getTransactionCount()
 
             const futureAddress = getContractAddress({
                 from: signer.address,
-                nonce: transactionCount + 1
+                nonce: transactionCount + 2
             })
        
 
@@ -57,6 +58,13 @@ describe("Exchange Contract tests", () => {
 
         tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
         if(tx_result.confirmations < 0 || tx_result === undefined) {
+            throw new Error("Transaction failed");
+        }
+
+        const tx3 = await contractInstance.transfer(tokenVault.address, amountToTokenVault);
+
+        tx_result3 = await provider.waitForTransaction(tx3.hash, confirmations_number);
+        if(tx_result3.confirmations < 0 || tx_result3 === undefined) {
             throw new Error("Transaction failed");
         }
         
@@ -103,7 +111,7 @@ describe("Exchange Contract tests", () => {
         });
     });
 
-    describe("Test GetExchangeRate",  () => {
+   /*  describe("Test GetExchangeRate",  () => {
 
         it("Try Get Exchange Rate", async () => {
             const amountOneEther = ethers.utils.parseEther("1");
@@ -113,13 +121,13 @@ describe("Exchange Contract tests", () => {
             const result = parseInt(balanceOfTokenVault) - (parseInt(invariantValue) / (parseInt(balanceExchangeContract) + parseInt(amountOneEther)));
            
            const returnValue = await exchangeContractInstance.getExchangeRate();
-           await expect(parseInt(returnValue)).to.be.greaterThan(result);
+           await expect(parseInt(returnValue)).to.be.equals(parseInt(result));
         });
-    });
+    }); */
 
     describe("Test Buy Token",  () => {
        
-        it("Try send Zero in amount to Buy", async () => {
+        /* it("Try send Zero in amount to Buy", async () => {
             await expect(exchangeContractInstance.buyToken(0)).to.be.revertedWith("Invalid _amountToBuy value");
         });
 
@@ -127,10 +135,10 @@ describe("Exchange Contract tests", () => {
             const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
             await expect(newInstanceExchangeContract.buyToken(2, {value: 0})).to.be.revertedWith("Insufficient ethers");
         });
-
+ */
         it("Try send Buy Tokens OK", async () => {
-            const amountEther = ethers.utils.parseEther("106");
-            const tokenToBuy = 60;
+            const amountEther = ethers.utils.parseEther("300");
+            const tokenToBuy = 2;
             const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
          
             const account3BalanceBefore = await contractInstance.balanceOf(account3.address);
@@ -138,7 +146,8 @@ describe("Exchange Contract tests", () => {
 
             //const invariantValueBefore = await exchangeContractInstance.invariant();
             const balanceExchangeContractBefore =  await provider.getBalance(exchangeContractInstance.address); 
-
+            console.log("Balance Exchange Before " ,balanceExchangeContractBefore);
+            console.log("Balance Token Vault Before " ,balanceTokenVaultBefore);
             const invariantValueBefore =  balanceExchangeContractBefore *  balanceTokenVaultBefore;
             console.log("Invariant Before 1" , invariantValueBefore);
 
@@ -153,19 +162,24 @@ describe("Exchange Contract tests", () => {
             const balanceTokenVaultAfter = await contractInstance.balanceOf(tokenVault.address);
 
             const balanceExchangeContractAfter =  await provider.getBalance(exchangeContractInstance.address); 
+            const feesCollected =  await exchangeContractInstance.feesCollected(); 
 
-            const invarianAfter =  balanceExchangeContractAfter *  balanceTokenVaultAfter;
+            console.log("Balance Exchange After " ,balanceExchangeContractAfter);
+            console.log("Balance Token Vault After " ,balanceTokenVaultAfter);
+            console.log("Fees Collected " ,feesCollected);
+            console.log("Balance Token Vault After without fees " ,(balanceExchangeContractAfter - feesCollected));
+            const invarianAfter =  (balanceExchangeContractAfter - feesCollected) *  balanceTokenVaultAfter;
 
             console.log( "Invariant After 1" ,invarianAfter);
 
-            expect(parseInt(account3BalanceAfter)).to.be.equals(parseInt(account3BalanceBefore) + parseInt(ethers.utils.parseEther("60")));
-            expect(parseInt(balanceTokenVaultAfter)).to.be.equals(parseInt(balanceTokenVaultBefore) - parseInt(ethers.utils.parseEther("60")));
+            expect(parseInt(account3BalanceAfter)).to.be.equals(parseInt(account3BalanceBefore) + parseInt(ethers.utils.parseEther("2")));
+            expect(parseInt(balanceTokenVaultAfter)).to.be.equals(parseInt(balanceTokenVaultBefore) - parseInt(ethers.utils.parseEther("2")));
           
         });
     });
 
 
-    describe("Test Buy Ether",  () => {
+   /*  describe("Test Buy Ether",  () => {
        
         it("Try send Zero in amount to exchange", async () => {
             await expect(exchangeContractInstance.buyEther(0)).to.be.revertedWith("Invalid _amountToExchage value");
@@ -176,46 +190,53 @@ describe("Exchange Contract tests", () => {
             await expect(newInstanceExchangeContract.buyEther(100, {value: 0})).to.be.revertedWith("Insufficient balance");
         });
 
-        // it("Try send Buy Tokens OK", async () => {
-        //     const amountToExchage = 20;
-        //     const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
-        //     const newInstancecontract = await contractInstance.connect(account3);
+        it("Try send without Approval to Exchange Contract", async () => {
+            const amountToExchage = 2;
+            const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
+            
+            await expect(newInstanceExchangeContract.buyEther(amountToExchage)).to.be.revertedWith("transferFrom - Insufficent allowance");
+            
+        });
+
+          it("Try send Buy Ethers OK", async () => {
+             const amountToExchage = 2;
+             const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
+             const newInstancecontract = await contractInstance.connect(account3);
          
-        //     const account3BalanceBefore = await contractInstance.balanceOf(account3.address);
-        //     const balanceTokenVaultBefore = await contractInstance.balanceOf(tokenVault.address);
-        //     const balanceExchangeContractBefore =  await provider.getBalance(exchangeContractInstance.address); 
+             const account3BalanceBefore = await contractInstance.balanceOf(account3.address);
+             const balanceTokenVaultBefore = await contractInstance.balanceOf(tokenVault.address);
+             const balanceExchangeContractBefore =  await provider.getBalance(exchangeContractInstance.address); 
 
-        //     const invariantValueBefore =  balanceExchangeContractBefore *  balanceTokenVaultBefore;
+             const invariantValueBefore =  balanceExchangeContractBefore *  balanceTokenVaultBefore;
 
-        //     console.log("Invariant Before" , invariantValueBefore);
-        //     const tx2 = await newInstancecontract.approve(exchangeContractInstance.address, ethers.utils.parseEther("20"));
+             console.log("Invariant Before" , invariantValueBefore);
+             const tx2 = await newInstancecontract.approve(exchangeContractInstance.address, ethers.utils.parseEther("2"));
 
-        //     tx_result2 = await provider.waitForTransaction(tx2.hash, confirmations_number);
-        //     if(tx_result2.confirmations < 0 || tx_result2 === undefined) {
-        //         throw new Error("Transaction failed");
-        //     }
+             tx_result2 = await provider.waitForTransaction(tx2.hash, confirmations_number);
+             if(tx_result2.confirmations < 0 || tx_result2 === undefined) {
+                 throw new Error("Transaction failed");
+             }
 
-        //     //console.log( parseInt(invariantValueBefore));
-        //     const tx = await newInstanceExchangeContract.buyEther(amountToExchage);
-        //     tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
-        //     if(tx_result.confirmations < 0 || tx_result === undefined) {
-        //        throw new Error("Transaction failed");
-        //     }
+             const tx = await newInstanceExchangeContract.buyEther(amountToExchage);
+             tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
+             if(tx_result.confirmations < 0 || tx_result === undefined) {
+                throw new Error("Transaction failed");
+             }
 
-        //     const account3BalanceAfter = await contractInstance.balanceOf(account3.address);
+             const account3BalanceAfter = await contractInstance.balanceOf(account3.address);
            
-        //     const balanceTokenVaultAfter = await contractInstance.balanceOf(tokenVault.address);
+            const balanceTokenVaultAfter = await contractInstance.balanceOf(tokenVault.address);
 
-        //     const balanceExchangeContractAfter =  await provider.getBalance(exchangeContractInstance.address); 
+             const balanceExchangeContractAfter =  await provider.getBalance(exchangeContractInstance.address); 
 
-        //     const invarianAfter =  balanceExchangeContractAfter *  balanceTokenVaultAfter;
+             const invarianAfter =  balanceExchangeContractAfter *  balanceTokenVaultAfter;
         
-        //     console.log( "Invariant After" ,invarianAfter);
+             console.log( "Invariant After" ,invarianAfter);
            
 
-        //     expect(parseInt(account3BalanceAfter)).to.be.equals(parseInt(account3BalanceBefore) - parseInt(ethers.utils.parseEther("20")));
-        //     expect(parseInt(balanceTokenVaultAfter)).to.be.equals(parseInt(balanceTokenVaultBefore) + parseInt(ethers.utils.parseEther("20")));
+             expect(parseInt(account3BalanceAfter)).to.be.equals(parseInt(account3BalanceBefore) - parseInt(ethers.utils.parseEther("2")));
+             expect(parseInt(balanceTokenVaultAfter)).to.be.equals(parseInt(balanceTokenVaultBefore) + parseInt(ethers.utils.parseEther("2")));
           
-        // });
-    });
+         });
+    }); */
 });
