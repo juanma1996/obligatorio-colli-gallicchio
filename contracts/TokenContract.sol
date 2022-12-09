@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 import "./TokenContractAbstract.sol";
+import "hardhat/console.sol";
 
 contract TokenContract is TokenContractAbstract 
 {
@@ -22,9 +23,11 @@ contract TokenContract is TokenContractAbstract
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
    
     constructor(string memory _name, string memory _symbol) TokenContractAbstract(_name, _symbol){
-        _maxSupplyToken = 500000;
-        _totalSupplyToken = 500000;
-        balanceOf[msg.sender] = 500000;
+        uint256 amount = 500000 * (10 ** uint256(decimals()));
+  
+        _maxSupplyToken = amount;
+        _totalSupplyToken = amount;
+        balanceOf[msg.sender] = amount;
     }
     
     function totalSupply() public view returns (uint256)
@@ -93,7 +96,8 @@ contract TokenContract is TokenContractAbstract
         // Effects
         balanceOf[_from] -= _value;
         balanceOf[_to] += _value;
-        emit Transfer(_from, _to, _value);
+        
+        emit Transfer(msg.sender, _to, _value);
     }
 
     /**
@@ -122,10 +126,9 @@ contract TokenContract is TokenContractAbstract
     /// ------------------------------------------------------------------------------------------------------------------------------------------
 
     function _isAuthorized(address _owner, address _spender, uint256 _value, string memory _methodName) private view {
-        if (_owner != _spender && allowance[_owner][_spender] <= _value) {
+        if (_owner != _spender && allowance[_owner][_spender] < _value) {
             string memory _message = _concatMessage(_methodName, " - Insufficent allowance", "");
             revert(_message);
         }
     }
-   
 }
