@@ -11,10 +11,11 @@ abstract contract BridgeContractAbstract {
     /// STATE MAPPINGS
     mapping(address => bool) public _blacklistAddress;
 
-    constructor(address vaulContract)
+    constructor(address erc20Conctract)
     {
+        _isZeroAddress(erc20Conctract, 'erc20Conctract');
         _owner = msg.sender;
-        _erc20Contract = vaulContract;
+        _erc20Contract = erc20Conctract;
     }
 
     function owner() public virtual view returns (address){
@@ -35,7 +36,9 @@ abstract contract BridgeContractAbstract {
     }
 
     function removeAddressFromBlackList(address _invalidAddress) public virtual{
-        _isZeroAddress(_invalidAddress, '_invalidAddress');//TODO: por letra dice: en cuyo caso revierte con el error ‘Invalid address _invalidAddress’. 
+        if (_invalidAddress == address(0)) {
+            revert("Invalid address _invalidAddress");
+        }
         _isNotBlacklistAddress(_invalidAddress);
         _blacklistAddress[_invalidAddress] = false;
     }

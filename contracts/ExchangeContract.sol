@@ -332,7 +332,7 @@ contract ExchangeContract {
         return result;
     }
 
-     function transferFromTokenContract(address _from, address _to, uint256 _value, address _erc20Conctract) private  {
+    function transferFromTokenContract(address _from, address _to, uint256 _value, address _erc20Conctract) private  {
             ITokenContract(_erc20Conctract).transferFrom(_from, _to,_value);
     }
 
@@ -340,7 +340,7 @@ contract ExchangeContract {
             return ITokenContract(_erc20Conctract).balanceOf(_from);
     }
 
-     function transferTokenContract(address _to, uint256 _value, address _erc20Conctract) private  {
+    function transferTokenContract(address _to, uint256 _value, address _erc20Conctract) private  {
             ITokenContract(_erc20Conctract).transfer(_to,_value);
     }
 

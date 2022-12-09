@@ -56,6 +56,18 @@ describe("Token Contract tests", () => {
             expect(receivedName).to.be.equals(name);
             expect(receivedSymbol).to.be.equals(symbol);
         });
+
+        it("Try MaxSupply OK", async () => {
+            const maxSupplyToken = ethers.utils.parseEther("500000");
+            const maxSupplyTokenSet = await contractInstance.maxSupply();
+            expect(parseInt(maxSupplyTokenSet)).to.be.equals(parseInt(maxSupplyToken));
+        });
+
+        it("Try MaxSupply OK", async () => {
+            const totalSupplyToken = ethers.utils.parseEther("500000");
+            const totalSupplyTokenSet = await contractInstance.totalSupply();
+            expect(parseInt(totalSupplyToken)).to.be.equals(parseInt(totalSupplyTokenSet));
+        });
     });
 
     describe("Transfer tests", () => {
@@ -84,7 +96,8 @@ describe("Token Contract tests", () => {
             const signerBalanceBefore = await contractInstance.balanceOf(signer.address);
             const account1BalanceBefore = await contractInstance.balanceOf(account1.address);
             const amountToTransfer = ethers.utils.parseEther("10");
-          
+           
+
             const tx = await contractInstance.transfer(account1.address, amountToTransfer);
 
             tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
@@ -95,8 +108,11 @@ describe("Token Contract tests", () => {
             // Check balance
             const signerBalanceAfter = await contractInstance.balanceOf(signer.address);
             const account1BalanceAfter = await contractInstance.balanceOf(account1.address);
+   
+
             expect(parseInt(signerBalanceAfter)).to.be.lessThanOrEqual(parseInt(signerBalanceBefore) - parseInt(amountToTransfer));
             expect(parseInt(account1BalanceAfter)).to.be.equals(parseInt(account1BalanceBefore) + parseInt(amountToTransfer));
+       
 
             // Check event emited
             const eventSignature = "Transfer(address,address,uint256)";
