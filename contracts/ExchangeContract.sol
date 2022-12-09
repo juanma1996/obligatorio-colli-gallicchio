@@ -45,84 +45,145 @@ contract ExchangeContract {
         {
            revert("Insufficient tokens in the vault");
         }
-        // TODO:
-        transferFromTokenContract(msg.sender, _tokenVault, _tokenAmount, _erc20Contract);
-       
+
         uint256 tokenVaultAmount = balanceOfTokenContract(_tokenVault, _erc20Contract);
         if (tokenVaultAmount < _tokenAmount){
             revert("Insufficient tokens in the vault");
         }
-
+      
+        transferFromTokenContract(msg.sender, _tokenVault, _tokenAmount, _erc20Contract);
+       
         // Effects
         decimalsToken = 18;
         feePercentage = 3 * (10 ** uint256(15));
         owner = msg.sender;
         tokenVault = _tokenVault;
         erc20Contract = _erc20Contract;
-        invariant = msg.value * _tokenAmount;
+        invariant = (msg.value * (_tokenAmount + tokenVaultAmount)) / _getUnitDecimals();
     }
 
     function getExchangeRate() external view returns (uint256)
     {
-        uint256 result = calculateTokenPerEther(1 ether);
-
+        uint256 result = calculateTokensPerEthers(1 ether);
+        //console.log("Result getExchangeRate", result);
         return result;
     }
 
-    function calculateTokenPerEther(uint256 _etherAmount) private view returns(uint256)
-    {
-        uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Contract);
-        
-        uint256 balanceOfContract = address(this).balance; 
-        uint256 result = tokenAmountOfTokenVault - (invariant / (balanceOfContract + _etherAmount));
-
-        return result;
-    }
-
-    function calculateEtherPerToken(uint256 _tokenAmount, uint256 _ethersOfTransaction) private view returns(uint256)
+    function calculateTokensPerEthers(uint256 etherAmount) private view returns(uint256)
     {
         
-        uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Contract);
-        
-        uint256 tokenAmountToExchange = _convertValueWithDecimals(_tokenAmount);
+         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Contract);
         
         uint256 balanceOfContract = address(this).balance; 
         
-        
-        console.log("Balance of Contract", balanceOfContract);
-        console.log("Eterhs of transaction", _ethersOfTransaction);
-        console.log("Invariant", invariant);
-        console.log("Token Ok Token Vault", tokenAmountOfTokenVault);
-        console.log("Token To Exchange", tokenAmountToExchange);
-        console.log("Fees Collected", feesCollected);
-        uint256 result = (balanceOfContract - _ethersOfTransaction - feesCollected) - (invariant / (tokenAmountOfTokenVault + tokenAmountToExchange));
+      //   console.log("Invariant Solidity: ", (invariant * _getUnitDecimals()));
+       //    console.log("Balance Exchange Contract Solidity: ", balanceOfContract);
+       //    console.log("Balance  Token Contract Solidity: ", tokenAmountOfTokenVault);
+       //    console.log("Fees Solidity: ", feesCollected);
+      //     console.log("Amount Solidity: ", etherAmount);
 
-        console.log("Result", result);
+
+        uint256 result = tokenAmountOfTokenVault - ((invariant * _getUnitDecimals()) / ((balanceOfContract - feesCollected + etherAmount))); 
+       
+        //console.log("Result calculateTokensPerEthers", result);
         return result;
     }
+
+     function calculateEthersToSellTokens(uint256 _tokenAmount, uint256 _ethersOfTransaction) private view returns(uint256)
+    {
+        
+         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Contract);
+        
+       // uint256 tokenAmountToExchange = _convertValueWithDecimals(_tokenAmount);
+        
+        uint256 balanceOfContract = address(this).balance; 
+        
+        //  uint256 fiveUnit = _convertValueWithDecimals(5);
+        //  console.log("Balance of Contract without Fees", balanceOfContract - _ethersOfTransaction - feesCollected);
+        //  console.log("Eterhs of transaction", _ethersOfTransaction);
+        //   console.log("Invariant", invariant);
+        //  console.log("Token Of Token Vault", tokenAmountOfTokenVault);
+        //   console.log("Token To Exchange", tokenAmountToExchange);
+
+        //     uint256 suma = tokenAmountOfTokenVault + tokenAmountToExchange;
+        //  console.log("Suma", suma);
+        //  uint256 div = invariant / suma;
+        //console.log("Division: ", div );
+            //  console.log("Resta2" , balanceOfContract - _ethersOfTransaction);
+            //   console.log("Fees Collected", feesCollected);
+        uint256 result =   (balanceOfContract - _ethersOfTransaction - feesCollected)  - ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault + _tokenAmount) ); 
+       
+      // console.log("Result calculateEthersToSellTokens", result);
+        return result;
+    }
+
+    function calculateEthersToBuyTokens(uint256 _tokenAmount, uint256 _ethersOfTransaction) private view returns(uint256)
+    {
+        
+        uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Contract);
+        
+        //uint256 tokenAmountToExchange = _convertValueWithDecimals(_tokenAmount);
+        
+        uint256 balanceOfContract = address(this).balance; 
+        
+        
+        //console.log("Balance of Contract without Fees", balanceOfContract - _ethersOfTransaction - feesCollected);
+        //console.log("Eterhs of transaction", _ethersOfTransaction);
+        //console.log("Invariant", invariant);
+       // console.log("Token Of Token Vault", tokenAmountOfTokenVault);
+       // console.log("Token To Exchange", tokenAmountToExchange);
+        //console.log("Resta", tokenAmountOfTokenVault - tokenAmountToExchange);
+        //console.log("Resta2" , balanceOfContract - _ethersOfTransaction);
+       // console.log("Fees Collected", feesCollected);
+        uint256 result =  ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault - _tokenAmount) ) - (balanceOfContract - _ethersOfTransaction - feesCollected); 
+       
+       // console.log("Result", result);
+        return result;
+    }
+
+  /*   function getInvariant() external view returns(uint256)
+    {
+        uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Contract);
+        uint256 balanceOfContract = address(this).balance; 
+
+        console.log("Balance of Contract 2 ", balanceOfContract);
+        console.log("Token Of Token Vault 2 ", tokenAmountOfTokenVault);
+
+        uint256 result = tokenAmountOfTokenVault * balanceOfContract;
+        console.log("Result ", result);
+
+        return result;
+
+    } */
 
     function buyToken(uint256 _amountTokenToBuy) external payable{
-  
-       
         if (_amountTokenToBuy == 0) {
            revert("Invalid _amountToBuy value");
         }
    
-        uint256 etherAmountToCollect = calculateEtherPerToken(_amountTokenToBuy, msg.value);
+        uint256 etherAmountToCollect = calculateEthersToBuyTokens(_amountTokenToBuy, msg.value) ;
         uint256 feeToCharge = (etherAmountToCollect * feePercentage) / _convertValueWithDecimals(100);
         etherAmountToCollect += feeToCharge;
-        console.log("Fees to charge ", feeToCharge);
+        //console.log("Fees to charge ", feeToCharge);
         feesCollected += feeToCharge;
         if (msg.value < etherAmountToCollect){
              revert("Insufficient ethers");
         }
 
-        transferFromTokenContract(tokenVault, msg.sender, _convertValueWithDecimals(_amountTokenToBuy), erc20Contract);
+        transferFromTokenContract(tokenVault, msg.sender, _amountTokenToBuy, erc20Contract);
 
-        if (msg.value > etherAmountToCollect){
+        if (msg.value > etherAmountToCollect)
+        {
             payable(msg.sender).transfer(msg.value - etherAmountToCollect);
         }  
-        console.log("Fees Collected final ", feesCollected);
+       // console.log("Fees Collected final ", feesCollected);
+       //  console.log("Balance Final With Fees", address(this).balance);
+
+       uint256 tokenAmountOfTokenVault2 = balanceOfTokenContract(tokenVault, erc20Contract);
+     //   console.log("Balance Token Vault Final ", tokenAmountOfTokenVault2);
+      //    console.log("Balance Final Without Fees ", address(this).balance - feesCollected);
+          
+          console.log("Invariant Buy Token", (((address(this).balance - feesCollected) * tokenAmountOfTokenVault2) / 1 ether));
     }
 
     function buyEther(uint256 _amountTokenToExchage) external payable{
@@ -130,21 +191,31 @@ contract ExchangeContract {
         {
            revert("Invalid _amountToExchage value");
         }
-        uint256 tokenAmountToExchange = _convertValueWithDecimals(_amountTokenToExchage);
-        _isInsuffientBalance(msg.sender, tokenAmountToExchange);
         
-        uint256  etherAmountToPay = calculateEtherPerToken(_amountTokenToExchage, 0);
+        //uint256 tokenAmountToExchange = _convertValueWithDecimals(_amountTokenToExchage);
+         _isInsuffientBalance(msg.sender, _amountTokenToExchage);
+       
+        uint256 etherAmountToPay = calculateEthersToSellTokens(_amountTokenToExchage, msg.value) ;
+      
         uint256 feeToCharge = (etherAmountToPay * feePercentage) / _convertValueWithDecimals(100);
-        
         etherAmountToPay -= feeToCharge;
         feesCollected += feeToCharge;
         if(address(this).balance < etherAmountToPay)
         {
             revert("Insufficient balance");
         }
-        transferFromTokenContract(msg.sender, tokenVault, tokenAmountToExchange, erc20Contract);
+        
+        transferFromTokenContract(msg.sender, tokenVault, _amountTokenToExchage, erc20Contract);
         
         payable(msg.sender).transfer(etherAmountToPay);
+
+        uint256 tokenAmountOfTokenVault2 = balanceOfTokenContract(tokenVault, erc20Contract);
+       // console.log("Balance Token Vault Final ", tokenAmountOfTokenVault2);
+       // console.log("Balance Final Without Fees ", address(this).balance - feesCollected);
+       //  console.log("Balance Final With Fees ", address(this).balance);
+       //  console.log("Fees ", feesCollected);
+
+        console.log("Invariant Buy Ether ", (((address(this).balance - feesCollected) * tokenAmountOfTokenVault2) / 1 ether));
     }
 
     function setFeePercentage(uint256 _feePercentage) external{
@@ -160,10 +231,10 @@ contract ExchangeContract {
     function deposit() external payable
     {
          _isOwnerProtocol(msg.sender);
-         uint256 amountToExchange = calculateTokenPerEther(msg.value);
+         uint256 amountToExchange = calculateTokensPerEthers(msg.value);
          _isInsuffientBalance(msg.sender, amountToExchange);
         
-        transferFromTokenContract(msg.sender, tokenVault, amountToExchange, erc20Contract);
+         transferFromTokenContract(msg.sender, tokenVault, amountToExchange, erc20Contract);
     }
 
     function withdrawFeesAmount() external
@@ -178,10 +249,42 @@ contract ExchangeContract {
         payable(msg.sender).transfer(feesCollected);
     }
 
+    function setTokenVault(address _tokenVault) external 
+    {
+        if (_tokenVault == address(0)) 
+        {
+            revert("Invalid address _tokenVault");
+        }
+        if (_isSmartContractAddress(_tokenVault))
+        {
+            revert("_tokenVault cannot be a contract");
+        }
+        uint256 tokenVaultBalance = balanceOfTokenContract(_tokenVault, erc20Contract);
+        if(tokenVaultBalance == 0)
+        {
+            revert("_tokenVault has no balance");
+        }
+        _isOwnerProtocol(msg.sender);
+
+
+        uint256 allowanceExchangeContract = allowanceTokenContract(_tokenVault, address(this), erc20Contract);
+        if(allowanceExchangeContract == 0)
+        {
+            revert("Invalid tokenVault address");
+        }
+
+    }
+
     // /// ------------------------------------------------------------------------------------------------------------------------------------------
     // /// PRIVATE FUNCTIONS
     // /// ------------------------------------------------------------------------------------------------------------------------------------------
-     function _isOwnerProtocol(address _address) private view {
+
+    function _getUnitDecimals() private view returns(uint256)
+    {
+        return _convertValueWithDecimals(1);
+    }
+
+    function _isOwnerProtocol(address _address) private view {
          if (owner != _address) {
              revert("Not authorized");
          }
@@ -218,16 +321,12 @@ contract ExchangeContract {
     }
 
     function _convertValueWithDecimals(uint256 value) private view returns(uint256)
-    {
-        uint256 decimalsValueTokenContract = decimalsTokenContract(erc20Contract);
-        uint256 result = value * (10 ** uint256(decimalsValueTokenContract));
+   {
+        uint256 result = value * (10 ** decimalsToken);
 
         return result;
-    }
+   }
 
-    /*
-     * @notice Call Mint Mehod of ERC20-M2
-     */
      function transferFromTokenContract(address _from, address _to, uint256 _value, address _erc20Conctract) private  {
             ITokenContract(_erc20Conctract).transferFrom(_from, _to,_value);
     }
@@ -236,11 +335,11 @@ contract ExchangeContract {
             return ITokenContract(_erc20Conctract).balanceOf(_from);
     }
 
-    function decimalsTokenContract(address _erc20Conctract) private view returns (uint256) {
-            return ITokenContract(_erc20Conctract).decimals();
-    }
-
      function transferTokenContract(address _to, uint256 _value, address _erc20Conctract) private  {
             ITokenContract(_erc20Conctract).transfer(_to,_value);
+    }
+
+     function allowanceTokenContract(address _owner, address _spender, address _erc20Conctract) private returns (uint256)  {
+            return ITokenContract(_erc20Conctract).allowance(_owner, _spender);
     }
 }
