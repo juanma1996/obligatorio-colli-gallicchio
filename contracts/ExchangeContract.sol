@@ -249,30 +249,24 @@ contract ExchangeContract {
         payable(msg.sender).transfer(feesCollected);
     }
 
-    function setTokenVault(address _tokenVault) external 
-    {
-        if (_tokenVault == address(0)) 
-        {
-            revert("Invalid address _tokenVault");
-        }
-        if (_isSmartContractAddress(_tokenVault))
-        {
+    function setTokenVault(address _tokenVault) external{
+        _isZeroAddress(_tokenVault, '_tokenVault');
+        if (_isSmartContractAddress(_tokenVault) == true){
             revert("_tokenVault cannot be a contract");
         }
+        _isOwnerProtocol(msg.sender);
         uint256 tokenVaultBalance = balanceOfTokenContract(_tokenVault, erc20Contract);
         if(tokenVaultBalance == 0)
         {
             revert("_tokenVault has no balance");
         }
-        _isOwnerProtocol(msg.sender);
-
-
-        uint256 allowanceExchangeContract = allowanceTokenContract(_tokenVault, address(this), erc20Contract);
-        if(allowanceExchangeContract == 0)
-        {
+        uint256 result = allowanceTokenContract(_tokenVault, address(this), erc20Contract);
+        if (result <= 0){
             revert("Invalid tokenVault address");
         }
-
+        
+        //TODO: chequear si hay que hacer más acciones con el invariant
+        tokenVault = _tokenVault;
     }
 
     // /// ------------------------------------------------------------------------------------------------------------------------------------------
@@ -284,26 +278,6 @@ contract ExchangeContract {
         return _convertValueWithDecimals(1);
     }
 
-    function setTokenVault(address tokenVault) external view{
-        _isZeroAddress(tokenVault, '_tokenVault');
-        if (_isSmartContractAddress(tokenVault) == true){
-            revert("_tokenVault cannot be a contract");
-        }
-        _isOwnerProtocol(msg.sender);
-        if (tokenVault.balance <= 0){
-            revert("_tokenVault has no balance");
-        }
-        uint256 result = ITokenContract(_erc20Contract).allowance(_tokenVault, address(this));
-        if (result <= 0){
-            revert("Invalid tokenVault address");
-        }
-        
-        _tokenVault = tokenVault;
-    }
-
-    /// ------------------------------------------------------------------------------------------------------------------------------------------
-    /// PRIVATE FUNCTIONS
-    /// ------------------------------------------------------------------------------------------------------------------------------------------
     function _isOwnerProtocol(address _address) private view {
          if (owner != _address) {
              revert("Not authorized");
@@ -341,11 +315,11 @@ contract ExchangeContract {
     }
 
     function _convertValueWithDecimals(uint256 value) private view returns(uint256)
-   {
+    {
         uint256 result = value * (10 ** decimalsToken);
 
         return result;
-   }
+    }
 
      function transferFromTokenContract(address _from, address _to, uint256 _value, address _erc20Conctract) private  {
             ITokenContract(_erc20Conctract).transferFrom(_from, _to,_value);
@@ -359,7 +333,7 @@ contract ExchangeContract {
             ITokenContract(_erc20Conctract).transfer(_to,_value);
     }
 
-     function allowanceTokenContract(address _owner, address _spender, address _erc20Conctract) private returns (uint256)  {
+     function allowanceTokenContract(address _owner, address _spender, address _erc20Conctract) private view returns (uint256)  {
             return ITokenContract(_erc20Conctract).allowance(_owner, _spender);
     }
 }
