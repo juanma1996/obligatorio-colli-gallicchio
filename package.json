@@ -2,7 +2,8 @@
   "name": "hardhat-project",
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.1.0",
-    "dotenv": "^16.0.1"
+    "dotenv": "^16.0.1",
+    "solidity-coverage": "^0.8.2"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",

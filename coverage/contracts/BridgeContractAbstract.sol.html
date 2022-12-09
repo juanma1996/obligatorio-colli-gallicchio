@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts\BridgeContractAbstract.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> BridgeContractAbstract.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/20</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/12</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/10</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/24</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
+pragma solidity 0.8.16;
+&nbsp;
+&nbsp;
+abstract contract BridgeContractAbstract {
+&nbsp;
+    /// STATE VARIABLES
+    address private _owner;
+    address private _erc20Contract;
+&nbsp;
+    /// STATE MAPPINGS
+    mapping(address =&gt; bool) public _blacklistAddress;
+&nbsp;
+<span class="fstat-no" title="function not covered" >    constructor(address vaulContract)</span>
+    {
+        _owner = msg.sender;
+        _erc20Contract = vaulContract;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function owner() public virtual view returns (address){</span>
+<span class="cstat-no" title="statement not covered" >        return _owner;</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function erc20Contract() public virtual view returns (address){</span>
+<span class="cstat-no" title="statement not covered" >        return _erc20Contract;</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function addAddressToBlackList(address _invalidAddress) public virtual{</span>
+<span class="cstat-no" title="statement not covered" >        _isZeroAddress(_invalidAddress, '_invalidAddress')</span>;
+<span class="cstat-no" title="statement not covered" >        if (_owner == _invalidAddress) {</span>
+<span class="cstat-no" title="statement not covered" >            revert("Invalid address _invalidAddress")</span>;
+        }
+<span class="cstat-no" title="statement not covered" >        _isBlacklistAddress(_invalidAddress)</span>;
+        _blacklistAddress[_invalidAddress] = true;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function removeAddressFromBlackList(address _invalidAddress) public virtual{</span>
+<span class="cstat-no" title="statement not covered" >        _isZeroAddress(_invalidAddress, '_invalidAddress')</span>;//TODO: por letra dice: en cuyo caso revierte con el error ‘Invalid address _invalidAddress’. 
+<span class="cstat-no" title="statement not covered" >        _isNotBlacklistAddress(_invalidAddress)</span>;
+        _blacklistAddress[_invalidAddress] = false;
+    }
+&nbsp;
+    /// ------------------------------------------------------------------------------------------------------------------------------------------
+    /// PRIVATE FUNCTIONS
+    /// ------------------------------------------------------------------------------------------------------------------------------------------
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function _isZeroAddress(address _address, string memory _parameterName) internal virtual pure {</span>
+<span class="cstat-no" title="statement not covered" >        if (_address == address(0)) {</span>
+<span class="cstat-no" title="statement not covered" >            string memory _message = string.concat( _parameterName, " cannot be zero address");</span>
+<span class="cstat-no" title="statement not covered" >            revert(_message)</span>;
+        }
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function _isBlacklistAddress(address _address) internal virtual view {</span>
+<span class="cstat-no" title="statement not covered" >        if (_blacklistAddress[_address]) {</span>
+<span class="cstat-no" title="statement not covered" >            revert("Address already in the list")</span>;
+        }
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function _isNotBlacklistAddress(address _address) internal virtual view {</span>
+<span class="cstat-no" title="statement not covered" >        if (_blacklistAddress[_address] == false) {</span>
+<span class="cstat-no" title="statement not covered" >            revert("Address not found")</span>;
+        }
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function _isOwnerProtocol(address _address) internal virtual view {</span>
+<span class="cstat-no" title="statement not covered" >        if (_owner != _address) {</span>
+<span class="cstat-no" title="statement not covered" >            revert("Not authorized")</span>;
+        }
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function _isZeroValue(uint256 _value, string memory _parameterName) internal virtual pure {</span>
+<span class="cstat-no" title="statement not covered" >        if (_value == 0) {</span>
+<span class="cstat-no" title="statement not covered" >            string memory _message = string.concat( _parameterName, " must be greater than zero");</span>
+<span class="cstat-no" title="statement not covered" >            revert(_message)</span>;
+        }
+    }
+}</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Dec 09 2022 00:13:02 GMT-0300 (hora estándar de Uruguay)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

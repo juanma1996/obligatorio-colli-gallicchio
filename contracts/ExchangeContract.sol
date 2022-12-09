@@ -64,12 +64,15 @@ contract ExchangeContract {
 
     function getExchangeRate() external view returns (uint256)
     {
-        uint256 result = calculateTokensPerEthers(1 ether);
-        //console.log("Result getExchangeRate", result);
+        uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Contract);
+        uint256 balanceOfContract = address(this).balance; 
+        uint256 result = tokenAmountOfTokenVault - ((invariant * _getUnitDecimals()) / ((balanceOfContract - feesCollected + (1 ether)))); 
+       
+       // console.log("Result getExchangeRate", result);
         return result;
     }
 
-    function calculateTokensPerEthers(uint256 etherAmount) private view returns(uint256)
+    function calculateTokensPerEthers(uint256 _ethersOfTransaction) private view returns(uint256)
     {
         
          uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Contract);
@@ -83,7 +86,7 @@ contract ExchangeContract {
       //     console.log("Amount Solidity: ", etherAmount);
 
 
-        uint256 result = tokenAmountOfTokenVault - ((invariant * _getUnitDecimals()) / ((balanceOfContract - feesCollected + etherAmount))); 
+        uint256 result = tokenAmountOfTokenVault - ((invariant * _getUnitDecimals()) / ((balanceOfContract - feesCollected + _ethersOfTransaction))); 
        
         //console.log("Result calculateTokensPerEthers", result);
         return result;
@@ -231,10 +234,23 @@ contract ExchangeContract {
     function deposit() external payable
     {
          _isOwnerProtocol(msg.sender);
+      
          uint256 amountToExchange = calculateTokensPerEthers(msg.value);
+         //console.log(amountToExchange);
          _isInsuffientBalance(msg.sender, amountToExchange);
         
+        // uint256 balance1 = balanceOfTokenContract(msg.sender, erc20Contract);
+        //  uint256 balance2 = balanceOfTokenContract(tokenVault, erc20Contract);
+
+        //  console.log("BALANCE SIGNER", balance1);
+        //  console.log("BALANCE TOKEN CONTRACT", balance2);
          transferFromTokenContract(msg.sender, tokenVault, amountToExchange, erc20Contract);
+
+        //  balance1 = balanceOfTokenContract(msg.sender, erc20Contract);
+        //   balance2 = balanceOfTokenContract(tokenVault, erc20Contract);
+
+       //   console.log("BALANCE SIGNER AFTER", balance1);
+       //   console.log("BALANCE TOKEN CONTRACT AFTER", balance2);
     }
 
     function withdrawFeesAmount() external
@@ -250,7 +266,9 @@ contract ExchangeContract {
     }
 
     function setTokenVault(address _tokenVault) external{
-        _isZeroAddress(_tokenVault, '_tokenVault');
+         if (_tokenVault == address(0)) {
+           revert("Invalid address _tokenVault");
+        }
         if (_isSmartContractAddress(_tokenVault) == true){
             revert("_tokenVault cannot be a contract");
         }
@@ -284,13 +302,6 @@ contract ExchangeContract {
          }
      }
     
-    function _isZeroValue(uint256 _value, string memory _parameterName) internal virtual pure {
-        if (_value == 0) {
-            string memory _message = string.concat("Invalid ", _parameterName, " value");
-             revert(_message);
-         }
-    }
-
     function _isZeroAddress(address _address, string memory _parameterName) internal virtual pure {
          if (_address == address(0)) {
              string memory _message = string.concat("Invalid address ", _parameterName);

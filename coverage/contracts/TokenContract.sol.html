@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts\TokenContract.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> TokenContract.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">91.67% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>22/24</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>2/2</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">71.43% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>5/7</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">93.75% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>30/32</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16×</span>
+<span class="cline-any cline-yes">16×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-yes">11×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
+pragma solidity 0.8.16;
+import "./TokenContractAbstract.sol";
+import "hardhat/console.sol";
+&nbsp;
+contract TokenContract is TokenContractAbstract 
+{
+&nbsp;
+    /// STATE VARIABLES
+    uint256 private _maxSupplyToken;
+    uint256 private _totalSupplyToken;
+    
+     /// STATE MAPPINGS
+     mapping(address =&gt; mapping(address =&gt; uint256)) public allowance;
+&nbsp;
+     /// EVENTS
+     
+    /// @notice Trigger when tokens are transferred
+    /// @dev On new tokens creation, trigger with the `from` address set to zero address
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);
+&nbsp;
+    /// @notice Trigger on any successful call to `approve` method
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+   
+    constructor(string memory _name, string memory _symbol) TokenContractAbstract(_name, _symbol){
+        uint256 amount = 500000 * (10 ** uint256(decimals()));
+  
+        _maxSupplyToken = amount;
+        _totalSupplyToken = amount;
+        balanceOf[msg.sender] = amount;
+    }
+    
+<span class="fstat-no" title="function not covered" >    function totalSupply() public view returns (uint256)</span>
+    {
+<span class="cstat-no" title="statement not covered" >        return _totalSupplyToken;</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function maxSupply() public view returns (uint256)</span>
+    {
+<span class="cstat-no" title="statement not covered" >        return _maxSupplyToken;</span>
+    }
+&nbsp;
+    /// ------------------------------------------------------------------------------------------------------------------------------------------
+    /// EXTERNAL FUNCTIONS
+    /// ------------------------------------------------------------------------------------------------------------------------------------------
+&nbsp;
+    /**
+     * @notice Transfers `_value` amount of tokens from sender to address `_to`. On success must fire the `Transfer` event.
+     * @dev Throw if `_to` is zero address. Message: "transfer - Invalid parameter: _to"
+     * @dev Throw if `_to` is sender account. Message: "transfer - Invalid recipient, same as remittent"
+     * @dev Throw if `_value` is zero. Message: "transfer - Invalid parameter: _value"
+     * @dev Throw if remittent account has insufficient balance. Message: "transfer - Insufficient balance"
+     * @param _to It is the recipient account address
+     * @param _value It is the amount of tokens to transfer.
+     */
+    function transfer(address _to, uint256 _value) external {
+        // TODO: Implement method
+        // Checks
+        string memory _methodName = 'transfer';
+        _isZeroAddress(_to, _methodName, '_to');
+        _isZeroValue(_value, _methodName, '_value');
+        _isValidRecipient(msg.sender, _to, _methodName);
+        _hasSufficientBalance(msg.sender, _value, _methodName);
+&nbsp;
+        // Effects
+        balanceOf[msg.sender] -= _value;
+        balanceOf[_to] += _value;
+        emit Transfer(msg.sender, _to, _value);
+    }
+&nbsp;
+    /**
+     * @notice Transfers `_value` amount of tokens from address `_from` to address `_to`. 
+     * On success must fire the `Transfer` event.
+     * @dev Throw if `_from` is zero address. Message: "transferFrom - Invalid parameter: _from"
+     * @dev Throw if `_to` is zero address. Message: "transferFrom - Invalid parameter: _to"
+     * @dev Throw if `_to` is the same as `_from` account. Message: "transferFrom - Invalid recipient, same as remittent"
+     * @dev Throw if `_value` is zero. Message: "transferFrom - Invalid parameter: _value"
+     * @dev Throw if `_from` account has insufficient balance. Message: "transferFrom - Insufficient balance"
+     * @dev Throws if `msg.sender` is not the current owner or an approved address with permission to spend the balance of the '_from' account
+     * Message: "transferFrom - Insufficent allowance"
+     * @param _from It is the remittent account address
+     * @param _to It is the recipient account address
+     * @param _value It is the amount of tokens to transfer.
+     */
+    function transferFrom(address _from, address _to, uint256 _value) external {
+        // TODO: Implement method
+        // Checks
+        string memory _methodName = 'transferFrom';
+        _isZeroAddress(_from, _methodName, '_from');
+        _isZeroAddress(_to, _methodName, '_to');
+        _isZeroAmount(_value, _methodName, '_value');
+        _isValidRecipient(_from, _to, _methodName);
+        _hasSufficientBalance(_from, _value, _methodName);
+        _isAuthorized(_from, msg.sender, _value, _methodName);
+&nbsp;
+        // Effects
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+        
+        emit Transfer(msg.sender, _to, _value);
+    }
+&nbsp;
+    /**
+     * @notice Allows `_spender` to withdraw from sender account multiple times, up to the `_value` amount
+     * On success must fire the `Approval` event.
+     * @dev If this function is called multiple times it overwrites the current allowance with `_value`
+     * @dev Throw if `_spender` is zero address. Message: "approve - Invalid parameter: _spender"
+     * @dev Throw if `_value` exceeds the sender's balance. Message: "approve - Insufficient balance"
+     * @param _spender It is the spender account address
+     * @param _value It is the allowance amount.
+     */
+    function approve(address _spender, uint256 _value) external {
+        // TODO: Implement method
+        // Checks
+        string memory _methodName = 'approve';
+        _isZeroAddress(_spender, _methodName, '_spender');
+        _hasSufficientBalance(msg.sender, _value, _methodName);
+&nbsp;
+        // Effects
+        allowance[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
+    }
+&nbsp;
+    /// ------------------------------------------------------------------------------------------------------------------------------------------
+    /// PRIVATE FUNCTIONS
+    /// ------------------------------------------------------------------------------------------------------------------------------------------
+&nbsp;
+    function _isAuthorized(address _owner, address _spender, uint256 _value, string memory _methodName) private view {
+        if (_owner != _spender &amp;&amp; allowance[_owner][_spender] &lt; _value) {
+            string memory _message = _concatMessage(_methodName, " - Insufficent allowance", "");
+            revert(_message);
+        }
+    }
+}</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Dec 09 2022 00:13:02 GMT-0300 (hora estándar de Uruguay)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

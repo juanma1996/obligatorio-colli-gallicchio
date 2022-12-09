@@ -1,6 +1,6 @@
 require('dotenv').config();
 require('@nomiclabs/hardhat-ethers');
-
+require('solidity-coverage')
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */

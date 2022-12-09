@@ -33,7 +33,7 @@ describe("Exchange Contract tests", () => {
         console.log("-----------------------------------------------------------------------------------");
 
         // Get Signer and provider
-        [signer, account1, tokenVault, account3] = await ethers.getSigners();
+        [signer, account1, tokenVault, account3, account4] = await ethers.getSigners();
         provider = ethers.provider;
 
         // Deploy Token Contract
@@ -146,7 +146,7 @@ describe("Exchange Contract tests", () => {
 
     describe("Test Buy Ether",  () => {
        
-        /*  it("Try send Zero in amount to exchange", async () => {
+         it("Try send Zero in amount to exchange", async () => {
             await expect(exchangeContractInstance.buyEther(0)).to.be.revertedWith("Invalid _amountToExchage value");
         });
 
@@ -156,7 +156,7 @@ describe("Exchange Contract tests", () => {
             
             await expect(newInstanceExchangeContract.buyEther(amountToExchage)).to.be.revertedWith("transferFrom - Insufficent allowance");
             
-        });  */
+        });  
 
           it("Try send Buy Ethers OK", async () => {
              const amountToExchage = ethers.utils.parseEther("7");
@@ -306,4 +306,109 @@ describe("Exchange Contract tests", () => {
                 await expect(exchangeContractInstance.setTokenVault(zeroAddress)).to.be.revertedWith("Invalid address _tokenVault");
             });
         });  */
+
+        describe("Set Token Vault Test",  () => {
+            it("Try send zero Address Token Vault", async () => {
+                await expect(exchangeContractInstance.setTokenVault(zeroAddress)).to.be.revertedWith("Invalid address _tokenVault");
+            }); 
+
+            it("Try send zero Address Contract how Token Vault", async () => {
+                await expect(exchangeContractInstance.setTokenVault(contractInstance.address)).to.be.revertedWith("_tokenVault cannot be a contract");
+            }); 
+
+            it("Try set Token Vault Address with zero balance", async () => {
+                await expect(exchangeContractInstance.setTokenVault(account4.address)).to.be.revertedWith("_tokenVault has no balance");
+            }); 
+
+            it("Try set Token Vault Address with not authorization to Exchange Contract for operate balance", async () => {
+                const tokenAmount = ethers.utils.parseEther("1");
+                const tx = await contractInstance.transfer(account4.address, tokenAmount);
+                tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
+                if(tx_result.confirmations < 0 || tx_result === undefined) {
+                    throw new Error("Transaction failed");
+                }
+                await expect(exchangeContractInstance.setTokenVault(account4.address)).to.be.revertedWith("Invalid tokenVault address");
+            }); 
+
+            it("Try set Token Vault Address with not owner", async () => {
+                const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
+                await expect(newInstanceExchangeContract.setTokenVault(account4.address)).to.be.revertedWith("Not authorized");
+            }); 
+        }); 
+
+        describe("Deposit Test",  () => {
+            it("Try Deposit with not owner", async () => {
+                const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
+                await expect(newInstanceExchangeContract.deposit({value:0})).to.be.revertedWith("Not authorized");
+            }); 
+
+            it("Try Deposit with not authorization to Exchange Contract for operate balance", async () => {
+                const amountEther = ethers.utils.parseEther("5")
+                await expect(exchangeContractInstance.deposit({value:amountEther})).to.be.revertedWith("transferFrom - Insufficent allowance");
+            }); 
+
+            it("Try Deposit Ok", async () => {
+
+                const amountEther = ethers.utils.parseEther("5")
+                const amountTokens = ethers.utils.parseEther("150")
+                const signerBalanceBefore = await contractInstance.balanceOf(signer.address);
+                const balanceTokenVaultBefore = await contractInstance.balanceOf(tokenVault.address);
+
+                const balanceExchangeContractBefore = await provider.getBalance(exchangeContractInstance.address);
+                const balanceSignerBefore = await provider.getBalance(exchangeContractInstance.address);
+
+                const tx = await contractInstance.approve(exchangeContractInstance.address, amountTokens);
+                tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
+                if(tx_result.confirmations < 0 || tx_result === undefined) {
+                    throw new Error("Transaction failed");
+                }
+
+                const tx2 = await exchangeContractInstance.deposit({value:amountEther});
+                tx_result2 = await provider.waitForTransaction(tx2.hash, confirmations_number);
+                if(tx_result2.confirmations < 0 || tx_result2 === undefined) {
+                    throw new Error("Transaction failed");
+                }
+
+                const signerBalanceAfter = await contractInstance.balanceOf(signer.address);
+                const balanceTokenVaultAfter = await contractInstance.balanceOf(tokenVault.address);
+
+                const balanceExchangeContractAfter = await provider.getBalance(exchangeContractInstance.address);
+                const balanceSignerAfter = await provider.getBalance(exchangeContractInstance.address);
+               
+                //expect(parseInt(signerBalanceAfter + balanceTokenVaultAfter)).to.be.equals(parseInt(signerBalanceBefore + balanceTokenVaultBefore));
+                //expect(parseInt(balanceExchangeContractAfter + balanceSignerAfter)).to.be.equals(parseInt(balanceExchangeContractBefore + balanceSignerBefore));
+                
+            }); 
+        }); 
+
+        describe("Set Fee Percentage tests", () => {
+            it("Try send zero value to set FEE", async () => {
+                await expect(exchangeContractInstance.setFeePercentage(0)).to.be.revertedWith("Invalid _feePercentage value");
+            }); 
+
+            it("Try Set FEE Percentage OK", async () => {
+                const newFEE = ethers.utils.parseEther("1")
+
+                const tx = await exchangeContractInstance.setFeePercentage(newFEE);
+                tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
+                if(tx_result.confirmations < 0 || tx_result === undefined) {
+                    throw new Error("Transaction failed");
+                }
+                
+                const feeSET = await exchangeContractInstance.feePercentage();
+                expect(feeSET).to.be.equals(newFEE);
+            }); 
+        });
+
+        describe("Withdraw Fees Amount tests", () => {
+            it("Try Withdraw Fees with not authorization account", async () => {
+                const newInstanceExchangeContract = await exchangeContractInstance.connect(account4);
+                await expect(newInstanceExchangeContract.withdrawFeesAmount()).to.be.revertedWith("Not authorized");
+            }); 
+
+            it("Try Withdraw Fees with insufficient amount", async () => {
+                const newInstanceExchangeContract = await exchangeContractInstance.connect(signer);
+                await expect(newInstanceExchangeContract.withdrawFeesAmount()).to.be.revertedWith("Insufficient amount of fees");
+            }); 
+        });
 });
