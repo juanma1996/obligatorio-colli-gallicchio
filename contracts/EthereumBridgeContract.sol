@@ -19,7 +19,12 @@ contract EthereumBridgeContract is BridgeContractAbstract
     /// STATE MAPPINGS
     mapping(address => uint256) public _tokenStaking;
 
-    constructor(address erc20Conctract, uint256 maxSupplyToken) BridgeContractAbstract(erc20Conctract){
+    constructor(address erc20Conctract, uint256 maxSupplyToken) BridgeContractAbstract(){
+        
+        if (erc20Conctract == address(0)) {
+            revert("erc20Conctract cannot be zero address");
+        }
+        _erc20Contract = erc20Conctract;
         _maxSupplyToken = maxSupplyToken;
     }
 

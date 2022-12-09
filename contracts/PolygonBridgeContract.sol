@@ -2,7 +2,7 @@
 pragma solidity 0.8.16;
 
 import "./BridgeContractAbstract.sol";
-import "./interfaces/ITokenContract.sol";
+import "./interfaces/ITokenContractPolygon.sol";
 
 contract PolygonBridgeContract is BridgeContractAbstract 
 {
@@ -15,30 +15,66 @@ contract PolygonBridgeContract is BridgeContractAbstract
     /// @dev Trigger with the `to` address and token amount
     event MintOrder(address indexed _to, uint256 _tokenAmount);
 
-    constructor(address vaulContract) BridgeContractAbstract(vaulContract){}
+    constructor(address erc20Conctract) BridgeContractAbstract(){
+         if (erc20Conctract == address(0)) {
+            revert("Invalid address _erc20Contract");
+        }
+        if (!_isSmartContractAddress(erc20Conctract)) {
+            revert("_erc20Contract is not a contract");
+        }
+        _erc20Contract = erc20Conctract;
+    }
     
     function mintTo(address _to, uint256 _tokenAmount) external{
         _isOwnerProtocol(msg.sender);
         _isZeroAddress(_to, '_to');
-        _isZeroValue(_tokenAmount, '_tokenAmount');
         if (_blacklistAddress[_to]) {
             revert("_to address is in blacklist");
         }
-        uint256 totalSupply = ITokenContract(erc20Contract()).totalSupply();
+        _isZeroValue(_tokenAmount, '_tokenAmount');
+        uint256 totalSupply =   totalSupplyTokenContract(erc20Contract());
         if (totalSupply < _tokenAmount) {
             revert("_tokenAmount exceeds max supply");
         }
-
-        emit MintOrder(_to, _tokenAmount);(_to, _tokenAmount); 
+        mintTokenContract (_to, _tokenAmount,erc20Contract());
+        emit MintOrder(_to, _tokenAmount);
     }
 
     function transferToEthereum(uint256 _tokenAmount) external{
         _isZeroValue(_tokenAmount, '_tokenAmount');
-        uint256 tokenVaultAmount = ITokenContract(erc20Contract()).balanceOf(msg.sender);
+        uint256 tokenVaultAmount = balanceOfTokenContract(msg.sender, erc20Contract());
         if (tokenVaultAmount < _tokenAmount){
             revert("_tokenAmount value exceed balance");
         }
-
+        burnTokenContract (_tokenAmount,erc20Contract());
         emit TransferToEthereum(msg.sender, _tokenAmount);
     }
+
+    // /// ------------------------------------------------------------------------------------------------------------------------------------------
+    // /// PRIVATE FUNCTIONS
+    // /// ------------------------------------------------------------------------------------------------------------------------------------------
+  
+    function _isSmartContractAddress(address _address) private view returns (bool) {
+         bytes32 zeroAccountHash = 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470;
+         bytes32 codeHash;    
+         assembly { codeHash := extcodehash(_address) }
+         return (codeHash != zeroAccountHash && codeHash != 0x0);
+     }
+
+     function mintTokenContract(address _to, uint256 _tokenAmount, address _erc20Conctract) private{
+        ITokenContractPolygon(_erc20Conctract).mint(_to, _tokenAmount);
+    }
+
+     function balanceOfTokenContract(address _from, address _erc20Conctract) private  view returns (uint256) {
+            return ITokenContractPolygon(_erc20Conctract).balanceOf(_from);
+    }
+
+     function totalSupplyTokenContract(address _erc20Conctract) private  view returns (uint256) {
+            return ITokenContractPolygon(_erc20Conctract).totalSupply();
+    }
+
+    function burnTokenContract(uint256 _tokenAmount, address _erc20Conctract) private{
+        ITokenContractPolygon(_erc20Conctract).burn(_tokenAmount);
+    }
+
 }

@@ -155,7 +155,7 @@ describe("Ethereum Bridge Contract tests", () => {
              // Receipt information
             const eventSignatureHashReceived = tx_result2.logs[0].topics[0];
             const eventSenderParametrReceived = ethers.utils.defaultAbiCoder.decode(['address'], tx_result2.logs[0].topics[1])[0];
-            const eventValueParametrReceived = ethers.utils.defaultAbiCoder.decode(['uint256'], tx_result.logs[0].data)[0];
+            const eventValueParametrReceived = ethers.utils.defaultAbiCoder.decode(['uint256'], tx_result2.logs[0].data)[0];
 
             // Check event signature
             expect(eventSignatureHashReceived).to.be.equals(eventSignatureHash);
@@ -231,7 +231,6 @@ describe("Ethereum Bridge Contract tests", () => {
             if(tx_result.confirmations < 0 || tx_result === undefined) {
                 throw new Error("Transaction failed");
             }
-            const newInstanceEthereumBridgeContract = await ethereumBridgeContractInstance.connect(account3);
             await expect(ethereumBridgeContractInstance.unStake(account3.address, unStakeAmount)).to.be.revertedWith("_tokenAmount value exceed staking");
             
         });
@@ -252,8 +251,13 @@ describe("Ethereum Bridge Contract tests", () => {
             const ethereumBridgeContractBalanceAfter = await contractInstance.balanceOf(ethereumBridgeContractInstance.address);
             expect(parseInt(account3BalanceAfter)).to.be.equals(parseInt(account3BalanceBefore + transferAmount));
             expect(parseInt(ethereumBridgeContractBalanceAfter)).to.be.equals(parseInt(ethereumBridgeContractBalanceBefore - transferAmount));
-
-           
         }); 
+    });
+
+    describe("Transfer To Ethereum tests", () => {
+        it("Try send not protocol owner in _owner", async () => {
+            const newInstanceEthereumBridgeContract = await ethereumBridgeContractInstance.connect(account2);
+            await expect(newInstanceEthereumBridgeContract.unStake(account3.address, 0)).to.be.revertedWith("Not authorized");
+        });
     });
 });
