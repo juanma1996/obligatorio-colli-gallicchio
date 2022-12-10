@@ -72,11 +72,21 @@ contract ExchangeContract {
         return result;
     }
 
-    function calculateTokensPerEthers(uint256 _ethersOfTransaction) private view returns(uint256)
+    function calculateEtherAmount(uint256 _tokenAmount) external view returns(uint256)
     {
         
-         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Contract);
+        uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Contract);
+        uint256 balanceOfContract = address(this).balance; 
         
+        uint256 result =  ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault - _tokenAmount) ) - (balanceOfContract  - feesCollected); 
+        console.log("Result calculateEtherAmount", result);
+        return result;
+    }
+
+    function calculateTokensPerEthers() private view returns(uint256)
+    {
+        
+        uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Contract);
         uint256 balanceOfContract = address(this).balance; 
         
       //   console.log("Invariant Solidity: ", (invariant * _getUnitDecimals()));
@@ -86,8 +96,7 @@ contract ExchangeContract {
       //     console.log("Amount Solidity: ", etherAmount);
 
 
-        uint256 result = tokenAmountOfTokenVault - ((invariant * _getUnitDecimals()) / ((balanceOfContract - feesCollected + _ethersOfTransaction))); 
-       
+        uint256 result = tokenAmountOfTokenVault - ((invariant * _getUnitDecimals()) / ((balanceOfContract - feesCollected))); 
         //console.log("Result calculateTokensPerEthers", result);
         return result;
     }
@@ -165,7 +174,8 @@ contract ExchangeContract {
         }
    
         uint256 etherAmountToCollect = calculateEthersToBuyTokens(_amountTokenToBuy, msg.value) ;
-        uint256 feeToCharge = (etherAmountToCollect * feePercentage) / _convertValueWithDecimals(100);
+        uint256 feeToCharge = (etherAmountToCollect * feePercentage) / 1 ether; 
+        
         etherAmountToCollect += feeToCharge;
         //console.log("Fees to charge ", feeToCharge);
         feesCollected += feeToCharge;
@@ -200,7 +210,7 @@ contract ExchangeContract {
        
         uint256 etherAmountToPay = calculateEthersToSellTokens(_amountTokenToExchage) ;
       
-        uint256 feeToCharge = (etherAmountToPay * feePercentage) / 1 ether; //_convertValueWithDecimals(1);
+        uint256 feeToCharge = (etherAmountToPay * feePercentage) / 1 ether; 
         etherAmountToPay -= feeToCharge;
         
         if((address(this).balance - feesCollected)  < etherAmountToPay)
@@ -235,7 +245,7 @@ contract ExchangeContract {
     {
          _isOwnerProtocol(msg.sender);
       
-         uint256 amountToExchange = calculateTokensPerEthers(msg.value);
+         uint256 amountToExchange = calculateTokensPerEthers();
          //console.log(amountToExchange);
          _isInsuffientBalance(msg.sender, amountToExchange);
         
