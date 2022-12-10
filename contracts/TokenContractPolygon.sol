@@ -56,10 +56,6 @@ contract TokenContractPolygon is TokenContractAbstract
         // Effects
         balanceOf[msg.sender] -= _value;
         totalSupplyPolygon -= _value;
-        //TODO: quien le paga? el address del exchange? O el address del erc20 o el del owner?
-        // emit Burn(_from, msg.sender, _value);
-        //TODO: hay que pagarle? Como sabemos cuanto? Hay que preguntarle al Exchange?
-        // payable(_from).transfer(_value);
     }
 
     /// ------------------------------------------------------------------------------------------------------------------------------------------
