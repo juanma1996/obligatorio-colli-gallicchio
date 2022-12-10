@@ -92,7 +92,7 @@ contract ExchangeContract {
         return result;
     }
 
-     function calculateEthersToSellTokens(uint256 _tokenAmount, uint256 _ethersOfTransaction) private view returns(uint256)
+     function calculateEthersToSellTokens(uint256 _tokenAmount) private view returns(uint256)
     {
         
          uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Contract);
@@ -114,7 +114,7 @@ contract ExchangeContract {
         //console.log("Division: ", div );
             //  console.log("Resta2" , balanceOfContract - _ethersOfTransaction);
             //   console.log("Fees Collected", feesCollected);
-        uint256 result =   (balanceOfContract - _ethersOfTransaction - feesCollected)  - ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault + _tokenAmount) ); 
+        uint256 result =   (balanceOfContract - feesCollected)  - ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault + _tokenAmount) ); 
        
       // console.log("Result calculateEthersToSellTokens", result);
         return result;
@@ -189,7 +189,7 @@ contract ExchangeContract {
           console.log("Invariant Buy Token", (((address(this).balance - feesCollected) * tokenAmountOfTokenVault2) / 1 ether));
     }
 
-    function buyEther(uint256 _amountTokenToExchage) external payable{
+    function buyEther(uint256 _amountTokenToExchage) external{
         if (_amountTokenToExchage == 0) 
         {
            revert("Invalid _amountToExchage value");
@@ -198,16 +198,16 @@ contract ExchangeContract {
         //uint256 tokenAmountToExchange = _convertValueWithDecimals(_amountTokenToExchage);
          _isInsuffientBalance(msg.sender, _amountTokenToExchage);
        
-        uint256 etherAmountToPay = calculateEthersToSellTokens(_amountTokenToExchage, msg.value) ;
+        uint256 etherAmountToPay = calculateEthersToSellTokens(_amountTokenToExchage) ;
       
-        uint256 feeToCharge = (etherAmountToPay * feePercentage) / _convertValueWithDecimals(100);
+        uint256 feeToCharge = (etherAmountToPay * feePercentage) / 1 ether; //_convertValueWithDecimals(1);
         etherAmountToPay -= feeToCharge;
-        feesCollected += feeToCharge;
-        if(address(this).balance < etherAmountToPay)
+        
+        if((address(this).balance - feesCollected)  < etherAmountToPay)
         {
             revert("Insufficient balance");
         }
-        
+        feesCollected += feeToCharge;
         transferFromTokenContract(msg.sender, tokenVault, _amountTokenToExchage, erc20Contract);
         
         payable(msg.sender).transfer(etherAmountToPay);
