@@ -12,7 +12,7 @@ const { Console } = require("console");
 chai.use(solidity);
 const { expect } = chai;
 
-const contractPath = "contracts/TokenContract.sol:TokenContract";
+const contractPath = "contracts/ERC20_Ethereum.sol:ERC20_Ethereum";
 const confirmations_number  =  1;
 const zeroAddress = '0x0000000000000000000000000000000000000000';
 let contractInstance;
@@ -22,51 +22,47 @@ const name = "Obli_Token";
 const symbol = "OTKN";
 
 
-describe("Token Contract tests", () => {
+describe("ERC20 Ethereum tests", () => {
     before(async () => {
         console.log("-----------------------------------------------------------------------------------");
-        console.log(" -- Token Contract tests start");
+        console.log(" -- ERC20 Ethereum tests start");
         console.log("-----------------------------------------------------------------------------------");
 
         // Get Signer and provider
         [signer, account1, account2, account3] = await ethers.getSigners();
         provider = ethers.provider;
 
-        // Deploy Token Contract
+        const maxSupplyToken = ethers.utils.parseEther("1000000");
+
+        // Deploy ERC20 Ethereum
         const contractFactory = await ethers.getContractFactory(contractPath, signer);
-        contractInstance = await contractFactory.deploy(name, symbol);
+        contractInstance = await contractFactory.deploy(name, symbol, maxSupplyToken);
         
     });
 
     describe("Constructor tests", () => {
         it("Try send empty name", async () => {
             const contractFactory = await ethers.getContractFactory(contractPath, signer);
-            await expect(contractFactory.deploy("", "")).to.be.revertedWith("constructor - Invalid parameter: _name");
+            await expect(contractFactory.deploy("", "", 0)).to.be.revertedWith("constructor - Invalid parameter: _name");
         });
 
         it("Try send empty symbol", async () => {
             const contractFactory = await ethers.getContractFactory(contractPath, signer);
-            await expect(contractFactory.deploy("Test", "")).to.be.revertedWith("constructor - Invalid parameter: _symbol");
+            await expect(contractFactory.deploy("Test", "", 0)).to.be.revertedWith("constructor - Invalid parameter: _symbol");
         });
 
         it("Initialization test", async () => {
+            const maxSupplyToken = ethers.utils.parseEther("1000000");
             const receivedName = await contractInstance.name();
             const receivedSymbol = await contractInstance.symbol();
+            const receivedMaxSupply = await contractInstance.maxSupply();
+            const receivedTotalSupply = await contractInstance.totalSupply();
 
             expect(receivedName).to.be.equals(name);
             expect(receivedSymbol).to.be.equals(symbol);
-        });
-
-        it("Try MaxSupply OK", async () => {
-            const maxSupplyToken = ethers.utils.parseEther("500000");
-            const maxSupplyTokenSet = await contractInstance.maxSupply();
-            expect(parseInt(maxSupplyTokenSet)).to.be.equals(parseInt(maxSupplyToken));
-        });
-
-        it("Try MaxSupply OK", async () => {
-            const totalSupplyToken = ethers.utils.parseEther("500000");
-            const totalSupplyTokenSet = await contractInstance.totalSupply();
-            expect(parseInt(totalSupplyToken)).to.be.equals(parseInt(totalSupplyTokenSet));
+            expect(receivedMaxSupply).to.be.equals(maxSupplyToken);
+            expect(receivedTotalSupply).to.be.equals(maxSupplyToken);
+            
         });
     });
 
@@ -142,7 +138,7 @@ describe("Token Contract tests", () => {
         });
 
         it("Try approve with insufficient balance", async () => {
-            const amountToApprove = ethers.utils.parseEther("500001");
+            const amountToApprove = ethers.utils.parseEther("1000001");
             await expect(contractInstance.approve(account1.address, amountToApprove)).to.be.revertedWith("approve - Insufficient balance");
         });
 

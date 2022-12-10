@@ -1,15 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
-import "./TokenContractAbstract.sol";
+import "./TokenAbstract.sol";
 import "hardhat/console.sol";
 
-contract TokenContract is TokenContractAbstract 
+contract ERC20_Ethereum is TokenAbstract 
 {
-
-    /// STATE VARIABLES
-    uint256 private _maxSupplyToken;
-    uint256 private _totalSupplyToken;
-    
      /// STATE MAPPINGS
      mapping(address => mapping(address => uint256)) public allowance;
 
@@ -22,24 +17,13 @@ contract TokenContract is TokenContractAbstract
     /// @notice Trigger on any successful call to `approve` method
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
    
-    constructor(string memory _name, string memory _symbol) TokenContractAbstract(_name, _symbol){
-        uint256 amount = 500000 * (10 ** uint256(decimals()));
-  
-        _maxSupplyToken = amount;
-        _totalSupplyToken = amount;
-        balanceOf[msg.sender] = amount;
+    constructor(string memory _name, string memory _symbol, uint256 _maxSupply) TokenAbstract(_name, _symbol, _maxSupply)
+    {
+        _maxSupplyToken = _maxSupply;
+        _totalSupplyToken = _maxSupply;
+        balanceOf[msg.sender] = _maxSupply;
     }
     
-    function totalSupply() public view returns (uint256)
-    {
-        return _totalSupplyToken;
-    }
-
-    function maxSupply() public view returns (uint256)
-    {
-        return _maxSupplyToken;
-    }
-
     /// ------------------------------------------------------------------------------------------------------------------------------------------
     /// EXTERNAL FUNCTIONS
     /// ------------------------------------------------------------------------------------------------------------------------------------------
@@ -92,11 +76,15 @@ contract TokenContract is TokenContractAbstract
         _isValidRecipient(_from, _to, _methodName);
         _hasSufficientBalance(_from, _value, _methodName);
         _isAuthorized(_from, msg.sender, _value, _methodName);
-
+       
         // Effects
         balanceOf[_from] -= _value;
         balanceOf[_to] += _value;
-        
+        if (_from != msg.sender) 
+        {
+            uint256 currentAllowance = allowance[_from][msg.sender];
+            allowance[_from][msg.sender] = currentAllowance - _value;
+        }
         emit Transfer(msg.sender, _to, _value);
     }
 

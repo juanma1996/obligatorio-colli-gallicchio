@@ -13,8 +13,8 @@ const { Console } = require("console");
 chai.use(solidity);
 const { expect } = chai;
 
-const contractPath = "contracts/TokenContract.sol:TokenContract";
-const exchangeContractPath = "contracts/ExchangeContract.sol:ExchangeContract";
+const contractPath = "contracts/ERC20_Ethereum.sol:ERC20_Ethereum";
+const exchangeContractPath = "contracts/Exchange.sol:Exchange";
 const confirmations_number  =  1;
 const zeroAddress = '0x0000000000000000000000000000000000000000';
 let contractInstance;
@@ -23,65 +23,55 @@ let exchangeContractInstance;
 const name = "Obli_Token";
 const symbol = "OTKN";
 
+const amountTokenToStartPool = ethers.utils.parseEther("250000");
 
-
-describe("Exchange Contract tests", () => {
+describe("Exchange tests", () => {
     before(async () => {
       
         console.log("-----------------------------------------------------------------------------------");
-        console.log(" -- Exchange Contract tests start");
+        console.log(" -- Exchange tests start");
         console.log("-----------------------------------------------------------------------------------");
 
         // Get Signer and provider
         [signer, account1, tokenVault, account3, account4] = await ethers.getSigners();
         provider = ethers.provider;
 
-        // Deploy Token Contract
+        // Deploy ERC20 Ethereum
+        const maxSupplyERC20Ethereum = ethers.utils.parseEther("1000000");
         const contractFactory = await ethers.getContractFactory(contractPath, signer);
-        contractInstance = await contractFactory.deploy(name, symbol);
+        contractInstance = await contractFactory.deploy(name, symbol, maxSupplyERC20Ethereum);
 
-        // Deploy Exchange Contract
-        const amountToStartPool = ethers.utils.parseEther("50");
-        const amountToTokenVault = ethers.utils.parseEther("50");
-        const amount= ethers.utils.parseEther("5");
+        // Deploy Exchange 
+      
+        const amountToTokenVault = ethers.utils.parseEther("250000");
+        const amount= ethers.utils.parseEther("2");
+
         const exchangeContractFactory = await ethers.getContractFactory(exchangeContractPath, signer);
-
-       const transactionCount = await signer.getTransactionCount()
+        const transactionCount = await signer.getTransactionCount()
 
             const futureAddress = getContractAddress({
                 from: signer.address,
                 nonce: transactionCount + 2
             })
        
-
-        const tx = await contractInstance.approve(futureAddress, amountToStartPool);
-
+   
+        const tx = await contractInstance.approve(futureAddress, amountTokenToStartPool);
         tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
         if(tx_result.confirmations < 0 || tx_result === undefined) {
             throw new Error("Transaction failed");
         }
 
         const tx3 = await contractInstance.transfer(tokenVault.address, amountToTokenVault);
-
         tx_result3 = await provider.waitForTransaction(tx3.hash, confirmations_number);
         if(tx_result3.confirmations < 0 || tx_result3 === undefined) {
             throw new Error("Transaction failed");
         }
-        
-        exchangeContractInstance = await exchangeContractFactory.deploy(tokenVault.address, contractInstance.address, amountToStartPool, { value: amount });
+
+        exchangeContractInstance = await exchangeContractFactory.deploy(tokenVault.address, contractInstance.address, amountTokenToStartPool, { value: amount });
         if(exchangeContractInstance.confirmations < 0 || exchangeContractInstance === undefined) {
             throw new Error("Transaction failed");
         }
-
-        // Token Vault aprueba que Exchange Contract maneje los Tokens
-        const newInstanceTokenContract = await contractInstance.connect(tokenVault);
-        const tx2 = await newInstanceTokenContract.approve(exchangeContractInstance.address, amountToStartPool);
-
-        tx_result2 = await provider.waitForTransaction(tx2.hash, confirmations_number);
-        if(tx_result2.confirmations < 0 || tx_result2 === undefined) {
-            throw new Error("Transaction failed");
-        }
-        
+    
         const tx4 = await contractInstance.transfer(account3.address, ethers.utils.parseEther("30"));
 
         tx_result4 = await provider.waitForTransaction(tx4.hash, confirmations_number);
@@ -163,15 +153,13 @@ describe("Exchange Contract tests", () => {
              const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
              const newInstancecontract = await contractInstance.connect(account3);
 
-             
-         
+            
              const account3BalanceBefore = await contractInstance.balanceOf(account3.address);
              const balanceTokenVaultBefore = await contractInstance.balanceOf(tokenVault.address);
-            // const balanceExchangeContractBefore =  await provider.getBalance(exchangeContractInstance.address); 
+             const balanceExchangeContractBefore =  await provider.getBalance(exchangeContractInstance.address); 
+             const feesCollectedBefore = await exchangeContractInstance.feesCollected();
+             const invariantBefore = balanceExchangeContractBefore.sub(feesCollectedBefore).mul(balanceTokenVaultBefore);
 
-           //  const invariantValueBefore =  balanceExchangeContractBefore *  balanceTokenVaultBefore;
-
-             //console.log("Invariant Before" , invariantValueBefore);
              const tx2 = await newInstancecontract.approve(exchangeContractInstance.address, ethers.utils.parseEther("7"));
 
              tx_result2 = await provider.waitForTransaction(tx2.hash, confirmations_number);
@@ -186,19 +174,17 @@ describe("Exchange Contract tests", () => {
              }
 
              const account3BalanceAfter = await contractInstance.balanceOf(account3.address);
-           
-            const balanceTokenVaultAfter = await contractInstance.balanceOf(tokenVault.address);
+             const balanceTokenVaultAfter = await contractInstance.balanceOf(tokenVault.address);
+             const balanceExchangeContractAfter =  await provider.getBalance(exchangeContractInstance.address); 
+             const feesCollectedAfter = await exchangeContractInstance.feesCollected();
+             const invariantAfter = balanceExchangeContractAfter.sub(feesCollectedAfter).mul(balanceTokenVaultAfter);
 
-            // const balanceExchangeContractAfter =  await provider.getBalance(exchangeContractInstance.address); 
-
-          //   const invarianAfter =  balanceExchangeContractAfter *  balanceTokenVaultAfter;
-        
-          //   console.log( "Invariant After" ,invarianAfter);
-           
+            console.log("INVARIANT BEFORE BUY ETHERS", invariantBefore);
+            console.log("INVARIANT AFTER BUY ETHERS", invariantAfter);
 
              expect(parseInt(account3BalanceAfter)).to.be.equals(parseInt(account3BalanceBefore) - parseInt(ethers.utils.parseEther("7")));
              expect(parseInt(balanceTokenVaultAfter)).to.be.equals(parseInt(balanceTokenVaultBefore) + parseInt(ethers.utils.parseEther("7")));
-          
+            // expect(invariantBefore).to.be.equals(invariantAfter);
          });
     }); 
     
@@ -221,13 +207,18 @@ describe("Exchange Contract tests", () => {
          
             const account3BalanceBefore = await contractInstance.balanceOf(account3.address);
             const balanceTokenVaultBefore = await contractInstance.balanceOf(tokenVault.address);
+            const balanceExchangeContractBefore =  await provider.getBalance(exchangeContractInstance.address); 
+            const feesCollectedBefore = await exchangeContractInstance.feesCollected();
+            const invariantBefore = balanceExchangeContractBefore.sub(feesCollectedBefore).mul(balanceTokenVaultBefore);
 
-            //const invariantValueBefore = await exchangeContractInstance.invariant();
-           // const balanceExchangeContractBefore =  await provider.getBalance(exchangeContractInstance.address); 
-          //  console.log("Balance Exchange Before " ,balanceExchangeContractBefore);
-          //  console.log("Balance Token Vault Before " ,balanceTokenVaultBefore);
-         //   const invariantValueBefore =  balanceExchangeContractBefore *  balanceTokenVaultBefore;
-         //   console.log("Invariant Before 1" , invariantValueBefore);
+            // Token Vault aprueba que Exchange Contract maneje los Tokens
+            const newInstanceTokenContract = await contractInstance.connect(tokenVault);
+            const tx2 = await newInstanceTokenContract.approve(exchangeContractInstance.address, tokenToBuy);
+
+            tx_result2 = await provider.waitForTransaction(tx2.hash, confirmations_number);
+            if(tx_result2.confirmations < 0 || tx_result2 === undefined) {
+                throw new Error("Transaction failed");
+            }
 
             const tx = await newInstanceExchangeContract.buyToken(tokenToBuy, {value: amountEther});
             tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
@@ -236,147 +227,113 @@ describe("Exchange Contract tests", () => {
             }
 
             const account3BalanceAfter = await contractInstance.balanceOf(account3.address);
-           
             const balanceTokenVaultAfter = await contractInstance.balanceOf(tokenVault.address);
+            const balanceExchangeContractAfter =  await provider.getBalance(exchangeContractInstance.address); 
+            const feesCollectedAfter = await exchangeContractInstance.feesCollected();
+            const invariantAfter = balanceExchangeContractAfter.sub(feesCollectedAfter).mul(balanceTokenVaultAfter);
 
-           const balanceExchangeContractAfter =  await provider.getBalance(exchangeContractInstance.address); 
-          //  const feesCollected =  await exchangeContractInstance.feesCollected(); 
-
-          //const invarianAfter =  await exchangeContractInstance.getInvariant(); 
-
-           // console.log("Balance Exchange After " ,balanceExchangeContractAfter);
-           // console.log("Balance Token Vault After " ,balanceTokenVaultAfter);
-           // console.log("Fees Collected " ,feesCollected);
-          //  console.log("Balance Token Vault After without fees " ,(balanceExchangeContractAfter));
-            const invarianAfter =  balanceExchangeContractAfter *  balanceTokenVaultAfter;
-
-           // console.log( "Invariant After 1" ,invarianAfter);
-
+            console.log("INVARIANT BEFORE BUY TOKENS", invariantBefore);
+            console.log("INVARIANT AFTER BUY TOKENS", invariantAfter);
             expect(parseInt(account3BalanceAfter)).to.be.equals(parseInt(account3BalanceBefore) + parseInt(ethers.utils.parseEther("7")));
             expect(parseInt(balanceTokenVaultAfter)).to.be.equals(parseInt(balanceTokenVaultBefore) - parseInt(ethers.utils.parseEther("7")));
-           // expect(invariantValueBefore).to.be.equals(invarianAfter);
+           // expect(invariantBefore).to.be.equals(invariantAfter);
           
         });
-    }); /*
-         it("Try send Buy Tokens OK 2", async () => {
-            const amountEther = ethers.utils.parseEther("30");
-            const tokenToBuy = ethers.utils.parseEther("2");
-            const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
-         
-            const account3BalanceBefore = await contractInstance.balanceOf(account3.address);
-            const balanceTokenVaultBefore = await contractInstance.balanceOf(tokenVault.address);
+    });
 
-            //const invariantValueBefore = await exchangeContractInstance.invariant();
-          //  const balanceExchangeContractBefore =  await provider.getBalance(exchangeContractInstance.address); 
-           // console.log("Balance Exchange Before " ,balanceExchangeContractBefore);
-          //  console.log("Balance Token Vault Before " ,balanceTokenVaultBefore);
-          //  const invariantValueBefore =  balanceExchangeContractBefore *  balanceTokenVaultBefore;
-          //  console.log("Invariant Before 1" , invariantValueBefore);
+    describe("Set Token Vault Test",  () => {
+        it("Try send zero Address Token Vault", async () => {
+            await expect(exchangeContractInstance.setTokenVault(zeroAddress)).to.be.revertedWith("Invalid address _tokenVault");
+        }); 
 
-            const tx = await newInstanceExchangeContract.buyToken(tokenToBuy, {value: amountEther});
+        it("Try send zero Address Contract how Token Vault", async () => {
+             await expect(exchangeContractInstance.setTokenVault(contractInstance.address)).to.be.revertedWith("_tokenVault cannot be a contract");
+        }); 
+
+        it("Try set Token Vault Address with zero balance", async () => {
+            await expect(exchangeContractInstance.setTokenVault(account4.address)).to.be.revertedWith("_tokenVault has no balance");
+        }); 
+
+        it("Try set Token Vault Address with not authorization to Exchange Contract for operate balance", async () => {
+            const tokenAmount = ethers.utils.parseEther("1");
+            const tx = await contractInstance.transfer(account4.address, tokenAmount);
             tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
             if(tx_result.confirmations < 0 || tx_result === undefined) {
-               throw new Error("Transaction failed");
+                   throw new Error("Transaction failed");
             }
-
-            const account3BalanceAfter = await contractInstance.balanceOf(account3.address);
-           
-            const balanceTokenVaultAfter = await contractInstance.balanceOf(tokenVault.address);
-
-           // const balanceExchangeContractAfter =  await provider.getBalance(exchangeContractInstance.address); 
-          //  const feesCollected =  await exchangeContractInstance.feesCollected(); 
-
-          //const invarianAfter =  await exchangeContractInstance.getInvariant(); 
-
-           // console.log("Balance Exchange After " ,balanceExchangeContractAfter);
-           // console.log("Balance Token Vault After " ,balanceTokenVaultAfter);
-           // console.log("Fees Collected " ,feesCollected);
-          //  console.log("Balance Token Vault After without fees " ,(balanceExchangeContractAfter));
-          //  const invarianAfter =  (balanceExchangeContractAfter) *  balanceTokenVaultAfter;
-
-           // console.log( "Invariant After 1" ,invarianAfter);
-
-            expect(parseInt(account3BalanceAfter)).to.be.equals(parseInt(account3BalanceBefore) + parseInt(ethers.utils.parseEther("2")));
-            expect(parseInt(balanceTokenVaultAfter)).to.be.equals(parseInt(balanceTokenVaultBefore) - parseInt(ethers.utils.parseEther("2")));
-          
+            await expect(exchangeContractInstance.setTokenVault(account4.address)).to.be.revertedWith("Invalid tokenVault address");
         }); 
-    
-        describe("Test Set Token Vault",  () => {
-            it("Try send zero Address Tokens Vault", async () => {
-                await expect(exchangeContractInstance.setTokenVault(zeroAddress)).to.be.revertedWith("Invalid address _tokenVault");
-            });
+
+        it("Try set Token Vault Address with not owner", async () => {
+            const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
+            await expect(newInstanceExchangeContract.setTokenVault(account4.address)).to.be.revertedWith("Not authorized");
+        }); 
+    }); 
+
+    describe("Deposit Test",  () => {
+        it("Try Deposit with not owner", async () => {
+            const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
+            await expect(newInstanceExchangeContract.deposit({value:0})).to.be.revertedWith("Not authorized");
+        }); 
+
+        it("Try Deposit with not authorization to Exchange Contract for operate balance", async () => {
+            const amountEther = ethers.utils.parseEther("1");
+            await expect(exchangeContractInstance.deposit({value:amountEther})).to.be.revertedWith("transferFrom - Insufficent allowance");
+         }); 
+
+        /* it("Try Deposit with insufficient balance", async () => {
+            const totalTokenSigner = await contractInstance.balanceOf(signer.address);
+            const oneToken = ethers.utils.parseEther("1");
+            const newTokenToDeposit = totalTokenSigner.add(oneToken);
+            const etherValueNeeded = await exchangeContractInstance.calculateEtherAmount(newTokenToDeposit);
+
+            await expect(exchangeContractInstance.deposit({value:etherValueNeeded})).to.be.revertedWith("Insufficient balance");
         });  */
 
-        describe("Set Token Vault Test",  () => {
-            it("Try send zero Address Token Vault", async () => {
-                await expect(exchangeContractInstance.setTokenVault(zeroAddress)).to.be.revertedWith("Invalid address _tokenVault");
-            }); 
+        it("Try Deposit Ok", async () => {
 
-            it("Try send zero Address Contract how Token Vault", async () => {
-                await expect(exchangeContractInstance.setTokenVault(contractInstance.address)).to.be.revertedWith("_tokenVault cannot be a contract");
-            }); 
+            const amountEther = ethers.utils.parseEther("1")
+            const amountTokensNeeded = await exchangeContractInstance.getExchangeRate();
+   
+            const balanceTokensSignerBefore = await contractInstance.balanceOf(signer.address);
+            const balanceTokensVaultBefore = await contractInstance.balanceOf(tokenVault.address);
 
-            it("Try set Token Vault Address with zero balance", async () => {
-                await expect(exchangeContractInstance.setTokenVault(account4.address)).to.be.revertedWith("_tokenVault has no balance");
-            }); 
+            const balanceEthersExchangeContractBefore = await provider.getBalance(exchangeContractInstance.address);
+            const balanceEthersSignerBefore = await provider.getBalance(signer.address);
+            
+            const tx = await contractInstance.approve(exchangeContractInstance.address, amountTokensNeeded);
+            tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
+            if(tx_result.confirmations < 0 || tx_result === undefined) {
+                throw new Error("Transaction failed");
+            }
+           // console.log("PRECIO TRAN", tx_result.gasUsed.mul(tx_result.effectiveGasPrice));
 
-            it("Try set Token Vault Address with not authorization to Exchange Contract for operate balance", async () => {
-                const tokenAmount = ethers.utils.parseEther("1");
-                const tx = await contractInstance.transfer(account4.address, tokenAmount);
-                tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
-                if(tx_result.confirmations < 0 || tx_result === undefined) {
-                    throw new Error("Transaction failed");
-                }
-                await expect(exchangeContractInstance.setTokenVault(account4.address)).to.be.revertedWith("Invalid tokenVault address");
-            }); 
+            const tx2 = await exchangeContractInstance.deposit({value:amountEther});
+            tx_result2 = await provider.waitForTransaction(tx2.hash, confirmations_number);
+            if(tx_result2.confirmations < 0 || tx_result2 === undefined) {
+                throw new Error("Transaction failed");
+            }
+            //console.log(tx_result2.gasUsed.mul(tx_result2.effectiveGasPrice));
+            //const effGasPrice = tx2.effectiveGasPrice;
+            //const txGasUsed = tx2.gasUsed;
+           // const gasUsedETH = effGasPrice * txGasUsed;
 
-            it("Try set Token Vault Address with not owner", async () => {
-                const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
-                await expect(newInstanceExchangeContract.setTokenVault(account4.address)).to.be.revertedWith("Not authorized");
-            }); 
-        }); 
+           const balanceTokensSignerAfter = await contractInstance.balanceOf(signer.address);
+           const balanceTokensVaultAfter = await contractInstance.balanceOf(tokenVault.address);
 
-        describe("Deposit Test",  () => {
-            it("Try Deposit with not owner", async () => {
-                const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
-                await expect(newInstanceExchangeContract.deposit({value:0})).to.be.revertedWith("Not authorized");
-            }); 
-
-            it("Try Deposit with not authorization to Exchange Contract for operate balance", async () => {
-                const amountEther = ethers.utils.parseEther("5")
-                await expect(exchangeContractInstance.deposit({value:amountEther})).to.be.revertedWith("transferFrom - Insufficent allowance");
-            }); 
-
-            it("Try Deposit Ok", async () => {
-
-                const amountEther = ethers.utils.parseEther("5")
-                const amountTokens = ethers.utils.parseEther("150")
-                const signerBalanceBefore = await contractInstance.balanceOf(signer.address);
-                const balanceTokenVaultBefore = await contractInstance.balanceOf(tokenVault.address);
-
-                const balanceExchangeContractBefore = await provider.getBalance(exchangeContractInstance.address);
-                const balanceSignerBefore = await provider.getBalance(exchangeContractInstance.address);
-
-                const tx = await contractInstance.approve(exchangeContractInstance.address, amountTokens);
-                tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
-                if(tx_result.confirmations < 0 || tx_result === undefined) {
-                    throw new Error("Transaction failed");
-                }
-
-                const tx2 = await exchangeContractInstance.deposit({value:amountEther});
-                tx_result2 = await provider.waitForTransaction(tx2.hash, confirmations_number);
-                if(tx_result2.confirmations < 0 || tx_result2 === undefined) {
-                    throw new Error("Transaction failed");
-                }
-
-                const signerBalanceAfter = await contractInstance.balanceOf(signer.address);
-                const balanceTokenVaultAfter = await contractInstance.balanceOf(tokenVault.address);
-
-                const balanceExchangeContractAfter = await provider.getBalance(exchangeContractInstance.address);
-                const balanceSignerAfter = await provider.getBalance(exchangeContractInstance.address);
+            const balanceEthersExchangeContractAfter = await provider.getBalance(exchangeContractInstance.address);
+            const balanceEthersSignerAfter = await provider.getBalance(signer.address);
                
-                //expect(parseInt(signerBalanceAfter + balanceTokenVaultAfter)).to.be.equals(parseInt(signerBalanceBefore + balanceTokenVaultBefore));
-                //expect(parseInt(balanceExchangeContractAfter + balanceSignerAfter)).to.be.equals(parseInt(balanceExchangeContractBefore + balanceSignerBefore));
+            expect(balanceEthersSignerAfter).to.be.equals(balanceEthersSignerBefore.sub(amountEther).sub(tx_result.gasUsed.mul(tx_result.effectiveGasPrice).add(tx_result2.gasUsed.mul(tx_result2.effectiveGasPrice))));
+            //console.log("DIFERENCIA:", balanceEthersSignerBefore.sub(amountEther).sub(balanceEthersSignerAfter));
+            //console.log("PRECIO TRAN2", tx_result2.gasUsed.mul(tx_result2.effectiveGasPrice));
+            //console.log("TOTAL COBRADO", tx_result.gasUsed.mul(tx_result.effectiveGasPrice).add(tx_result2.gasUsed.mul(tx_result2.effectiveGasPrice)) )
+            expect(balanceEthersExchangeContractAfter).to.be.equals(balanceEthersExchangeContractBefore.add(amountEther));
+        
+            expect(parseInt(balanceTokensSignerAfter)).to.be.lessThanOrEqual(parseInt(balanceTokensSignerBefore));
+            expect(parseInt(balanceTokensVaultAfter)).to.be.greaterThanOrEqual(parseInt(balanceTokensVaultBefore));
+            expect(balanceTokensSignerBefore.add(balanceTokensVaultBefore)).to.be.equals(balanceTokensSignerAfter.add(balanceTokensVaultAfter));
+            //expect(parseInt(balanceExchangeContractAfter.add(balanceSignerAfter))).to.be.equals(parseInt(balanceExchangeContractBefore.add(balanceSignerBefore)));
                 
             }); 
         }); 

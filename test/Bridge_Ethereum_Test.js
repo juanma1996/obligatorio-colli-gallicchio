@@ -13,8 +13,8 @@ const { Console } = require("console");
 chai.use(solidity);
 const { expect } = chai;
 
-const contractPath = "contracts/TokenContract.sol:TokenContract";
-const ethereumBridgeContractPath = "contracts/EthereumBridgeContract.sol:EthereumBridgeContract";
+const contractPath = "contracts/ERC20_Ethereum.sol:ERC20_Ethereum";
+const ethereumBridgeContractPath = "contracts/Bridge_Ethereum.sol:Bridge_Ethereum";
 const confirmations_number  =  1;
 const zeroAddress = '0x0000000000000000000000000000000000000000';
 let contractInstance;
@@ -24,11 +24,11 @@ let ethereumBridgeContractInstance;
 const name = "Obli_Token";
 const symbol = "OTKN";
 
-describe("Ethereum Bridge Contract tests", () => {
+describe("Bridge Ethereum tests", () => {
     before(async () => {
       
         console.log("-----------------------------------------------------------------------------------");
-        console.log(" -- Ethereum Bridge Contract tests start");
+        console.log(" -- Bridge Ethereum tests start");
         console.log("-----------------------------------------------------------------------------------");
 
         // Get Signer and provider
@@ -37,9 +37,10 @@ describe("Ethereum Bridge Contract tests", () => {
 
         const maxSupplyToken = ethers.utils.parseEther("50");
 
-        // Deploy Token Contract
-        const contractFactory = await ethers.getContractFactory(contractPath, signer);
-        contractInstance = await contractFactory.deploy(name, symbol);
+         // Deploy ERC20 Ethereum
+         const maxSupplyERC20Ethereum = ethers.utils.parseEther("1000000");
+         const contractFactory = await ethers.getContractFactory(contractPath, signer);
+         contractInstance = await contractFactory.deploy(name, symbol, maxSupplyERC20Ethereum);
 
         // Deploy Ethereum Bridge Contract
         const ethereumBridgeContractFactory = await ethers.getContractFactory(ethereumBridgeContractPath, signer);

@@ -1,23 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
-import "./TokenContractAbstract.sol";
+import "./TokenAbstract.sol";
 
-contract TokenContractPolygon is TokenContractAbstract 
+contract ERC20_Polygon is TokenAbstract 
 {
     /// EVENTS
     /// @notice Trigger when tokens are transferred
     /// @dev On new tokens creation, trigger with the `from` address set to zero address
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
 
-    /// STATE VARIABLES
-    uint256 private maxSupplyPolygon;
-    uint256 private totalSupplyPolygon;
-
-    constructor(string memory _name, string memory _symbol) TokenContractAbstract(_name, _symbol)
+    constructor(string memory _name, string memory _symbol, uint256 _maxSupply) TokenAbstract(_name, _symbol, _maxSupply)
     {
-        maxSupplyPolygon = 500000;
-        totalSupplyPolygon = 500000;
-        balanceOf[msg.sender] = 500000;
+        _maxSupplyToken = _maxSupply;
+        _totalSupplyToken = 0;
+        balanceOf[msg.sender] = 0;
     }
 
     /**
@@ -36,7 +32,7 @@ contract TokenContractPolygon is TokenContractAbstract
         _isMaxSupply(_methodName, _amountToMint);
 
         // Effects
-        totalSupplyPolygon += _amountToMint;
+        _totalSupplyToken += _amountToMint;
         balanceOf[msg.sender] += _amountToMint;
         emit Transfer(address(0), msg.sender, _amountToMint);
     }
@@ -55,7 +51,7 @@ contract TokenContractPolygon is TokenContractAbstract
 
         // Effects
         balanceOf[msg.sender] -= _value;
-        totalSupplyPolygon -= _value;
+        _totalSupplyToken -= _value;
     }
 
     /// ------------------------------------------------------------------------------------------------------------------------------------------
@@ -63,7 +59,7 @@ contract TokenContractPolygon is TokenContractAbstract
     /// ------------------------------------------------------------------------------------------------------------------------------------------
 
     function _isMaxSupply(string memory _methodName, uint256 _amountToMint) private view {
-        if (maxSupplyPolygon > 0 && totalSupplyPolygon + _amountToMint > maxSupplyPolygon) {
+        if (_maxSupplyToken > 0 && _totalSupplyToken + _amountToMint > _maxSupplyToken) {
             string memory _message = _concatMessage(_methodName, " - Total supply exceeds maximum supply", "");
             revert(_message);
         }

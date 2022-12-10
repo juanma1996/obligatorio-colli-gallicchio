@@ -2,12 +2,17 @@
 pragma solidity 0.8.16;
 
 
-abstract contract TokenContractAbstract {
+abstract contract TokenAbstract {
 
     /// STATE VARIABLES
-    string private  _nameToken = "";
-    string private _symbolToken = "";
-    uint8 private _decimalsToken;
+    string internal  _nameToken = "";
+    string internal _symbolToken = "";
+    uint8 internal _decimalsToken;
+    uint256 internal _maxSupplyToken;
+    uint256 internal _totalSupplyToken;
+
+    address public owner;
+
     /// STATE MAPPINGS
     mapping(address => uint256) public balanceOf;
 
@@ -19,7 +24,7 @@ abstract contract TokenContractAbstract {
      * @param _symbol The symbol of the token
      */
      
-    constructor(string memory _name, string memory _symbol)
+    constructor(string memory _name, string memory _symbol, uint256 _maxSupply)
     {
          // Checks
         string memory _methodName = 'constructor';
@@ -28,8 +33,8 @@ abstract contract TokenContractAbstract {
         // Effects
         _nameToken = _name;
         _symbolToken = _symbol;
-        _decimalsToken = 18;
-       
+        _maxSupplyToken = _maxSupply;
+       owner = msg.sender;
     }
 
     function name() public virtual view returns (string memory){
@@ -46,6 +51,15 @@ abstract contract TokenContractAbstract {
         return _decimalsToken;
     }
 
+    function totalSupply() public virtual view returns (uint256)
+    {
+        return _totalSupplyToken;
+    }
+
+    function maxSupply() public virtual view returns (uint256)
+    {
+        return _maxSupplyToken;
+    }
 
     /// ------------------------------------------------------------------------------------------------------------------------------------------
     /// PRIVATE FUNCTIONS

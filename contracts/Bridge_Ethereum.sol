@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "./BridgeContractAbstract.sol";
+import "./BridgeAbstract.sol";
 import "./interfaces/ITokenContract.sol";
 
-contract EthereumBridgeContract is BridgeContractAbstract 
+contract Bridge_Ethereum is BridgeAbstract 
 {
     /// EVENTS
     /// @notice Trigger when tokens are transfer to staking
@@ -19,7 +19,7 @@ contract EthereumBridgeContract is BridgeContractAbstract
     /// STATE MAPPINGS
     mapping(address => uint256) public _tokenStaking;
 
-    constructor(address erc20Conctract, uint256 maxSupplyToken) BridgeContractAbstract(){
+    constructor(address erc20Conctract, uint256 maxSupplyToken) BridgeAbstract(){
         
         if (erc20Conctract == address(0)) {
             revert("erc20Conctract cannot be zero address");

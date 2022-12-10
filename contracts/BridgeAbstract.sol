@@ -2,7 +2,7 @@
 pragma solidity 0.8.16;
 
 
-abstract contract BridgeContractAbstract {
+abstract contract BridgeAbstract {
 
     /// STATE VARIABLES
     address private _owner;

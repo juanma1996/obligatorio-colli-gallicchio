@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "./BridgeContractAbstract.sol";
+import "./BridgeAbstract.sol";
 import "./interfaces/ITokenContractPolygon.sol";
 
-contract PolygonBridgeContract is BridgeContractAbstract 
+contract Bridge_Polygon is BridgeAbstract 
 {
     /// EVENTS
     /// @notice Trigger when tokens need to be burn on ERC-20 contract
@@ -15,7 +15,7 @@ contract PolygonBridgeContract is BridgeContractAbstract
     /// @dev Trigger with the `to` address and token amount
     event MintOrder(address indexed _to, uint256 _tokenAmount);
 
-    constructor(address erc20Conctract) BridgeContractAbstract(){
+    constructor(address erc20Conctract) BridgeAbstract(){
          if (erc20Conctract == address(0)) {
             revert("Invalid address _erc20Contract");
         }

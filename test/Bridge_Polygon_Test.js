@@ -13,8 +13,8 @@ const { Console } = require("console");
 chai.use(solidity);
 const { expect } = chai;
 
-const contractPolygonPath = "contracts/TokenContractPolygon.sol:TokenContractPolygon";
-const polygonBridgeContractPath = "contracts/PolygonBridgeContract.sol:PolygonBridgeContract";
+const contractPolygonPath = "contracts/ERC20_Polygon.sol:ERC20_Polygon";
+const polygonBridgeContractPath = "contracts/Bridge_Polygon.sol:Bridge_Polygon";
 const confirmations_number  =  1;
 const zeroAddress = '0x0000000000000000000000000000000000000000';
 let contractPolygonInstance;
@@ -24,11 +24,11 @@ let polygonBridgeContractInstance;
 const name = "Obli_Token";
 const symbol = "OTKN";
 
-describe("Ethereum Bridge Contract tests", () => {
+describe("Bridge Polygon tests", () => {
     before(async () => {
       
         console.log("-----------------------------------------------------------------------------------");
-        console.log(" -- Ethereum Bridge Contract tests start");
+        console.log(" -- Bridge Polygon tests start");
         console.log("-----------------------------------------------------------------------------------");
 
         // Get Signer and provider
