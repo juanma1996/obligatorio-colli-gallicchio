@@ -15,14 +15,18 @@ contract Bridge_Ethereum is BridgeAbstract
     mapping(address => uint256) public tokenStaking;
 
     constructor(address erc20Conctract) BridgeAbstract(){
-        
+        // Checks
         if (erc20Conctract == address(0)) {
             revert("erc20Conctract cannot be zero address");
         }
+
+        // Effects
         _erc20Contract = erc20Conctract;
     }
 
-    function transferToPolygon(uint256 _tokenAmount) external{
+    function transferToPolygon(uint256 _tokenAmount) external
+    {   
+        // Checks
         if (_tokenAmount == 0) {
             revert("_tokenAmount must be greater than zero");
         }
@@ -38,14 +42,18 @@ contract Bridge_Ethereum is BridgeAbstract
             revert("Insufficient balance");
         }
 
+        // Efects
         tokenStaking[msg.sender] += _tokenAmount; 
      
+        // Interactions 
         transferFromTokenContract(msg.sender, address(this), _tokenAmount, erc20Contract());
         emit TransferToPolygon(msg.sender, _tokenAmount);    
        
     }
 
-    function unStake(address ownerAddress, uint256 _tokenAmount) external{
+    function unStake(address ownerAddress, uint256 _tokenAmount) external
+    {
+        // Checks
         _isZeroAddress(ownerAddress, '_owner');
         _isOwnerProtocol(msg.sender);
         
@@ -61,7 +69,10 @@ contract Bridge_Ethereum is BridgeAbstract
             revert("_tokenAmount value exceed staking");
         }
        
+       // Efects
         tokenStaking[ownerAddress] -= _tokenAmount;
+
+        // Interactions 
         transferTokenContract(ownerAddress, _tokenAmount, erc20Contract());
     }
 
@@ -69,15 +80,18 @@ contract Bridge_Ethereum is BridgeAbstract
     // /// PRIVATE FUNCTIONS
     // /// ------------------------------------------------------------------------------------------------------------------------------------------
 
-    function balanceOfTokenContract(address _from, address _erc20Conctract) private  view returns (uint256) {
+    function balanceOfTokenContract(address _from, address _erc20Conctract) private  view returns (uint256) 
+    {
             return ITokenContract(_erc20Conctract).balanceOf(_from);
     }
 
-     function transferFromTokenContract(address _from, address _to, uint256 _value, address _erc20Conctract) private  {
+     function transferFromTokenContract(address _from, address _to, uint256 _value, address _erc20Conctract) private  
+     {
             ITokenContract(_erc20Conctract).transferFrom(_from, _to,_value);
     }
 
-    function transferTokenContract(address _to, uint256 _value, address _erc20Conctract) private  {
+    function transferTokenContract(address _to, uint256 _value, address _erc20Conctract) private  
+    {
             ITokenContract(_erc20Conctract).transfer(_to,_value);
     }
 }

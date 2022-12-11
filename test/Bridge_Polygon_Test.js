@@ -128,32 +128,40 @@ describe("Bridge Polygon tests", () => {
 
     describe("transferToEthereum tests", () => {
         it("Try send _recipient value in Black List", async () => {
-            await expect(polygonBridgeContractInstance.transferToEthereum(0, account2.address)).to.be.revertedWith("_recipient address is in blacklist");
-        });
-
-        it("Try send zero address  in _recipient value", async () => {
-            await expect(polygonBridgeContractInstance.transferToEthereum(0, zeroAddress)).to.be.revertedWith("_recipient cannot be zero address");
+            const newInstancePolygonBridgeContract = await polygonBridgeContractInstance.connect(account2);
+            await expect(newInstancePolygonBridgeContract.transferToEthereum(0)).to.be.revertedWith("_recipient address is in blacklist");
         });
 
         it("Try send zero value in _tokenAmount", async () => {
-            await expect(polygonBridgeContractInstance.transferToEthereum(0, account4.address)).to.be.revertedWith("_tokenAmount must be greater than zero");
-        });
-
-        it("Try send not owner as sender", async () => {
-            const newInstancePolygonBridgeContract = await polygonBridgeContractInstance.connect(account4);
-            await expect(newInstancePolygonBridgeContract.transferToEthereum(0, account4.address)).to.be.revertedWith("Not authorized");
+            await expect(polygonBridgeContractInstance.transferToEthereum(0)).to.be.revertedWith("_tokenAmount must be greater than zero");
         });
 
         it("Try send insufficient balance", async () => {
             const transferAmount = ethers.utils.parseEther("11");
-            await expect(polygonBridgeContractInstance.transferToEthereum(transferAmount, account3.address)).to.be.revertedWith("_tokenAmount value exceed balance");
+            const newInstancePolygonBridgeContract = await polygonBridgeContractInstance.connect(account3);
+            await expect(newInstancePolygonBridgeContract.transferToEthereum(transferAmount)).to.be.revertedWith("_tokenAmount value exceed balance");
+        });
+
+        it("Try send insufficient allowance", async () => {
+            const transferAmount = ethers.utils.parseEther("10");
+            const newInstancePolygonBridgeContract = await polygonBridgeContractInstance.connect(account3);
+            await expect(newInstancePolygonBridgeContract.transferToEthereum(transferAmount)).to.be.revertedWith("transferFrom - Insufficent allowance");
         });
 
         it("Try Transfer To Ethereum OK", async () => {
             const transferAmount = ethers.utils.parseEther("10");
-            const balanceAccount3Before = await contractPolygonInstance.balanceOf(account3.address);
+            const newInstancePolygonBridgeContract = await polygonBridgeContractInstance.connect(account3);
+            const newInstancePolygonContract = await contractPolygonInstance.connect(account3);
 
-           const tx2 = await polygonBridgeContractInstance.transferToEthereum(transferAmount, account3.address);
+            const tx = await newInstancePolygonContract.approve(polygonBridgeContractInstance.address, transferAmount);
+            tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
+            if(tx_result.confirmations < 0 || tx_result === undefined) {
+                throw new Error("Transaction failed");
+            }
+
+          const balanceAccount3Before = await contractPolygonInstance.balanceOf(account3.address);
+
+           const tx2 = await newInstancePolygonBridgeContract.transferToEthereum(transferAmount);
            tx_result2 = await provider.waitForTransaction(tx2.hash, confirmations_number);
            if(tx_result2.confirmations < 0 || tx_result2 === undefined) {
                throw new Error("Transaction failed");
@@ -167,16 +175,16 @@ describe("Bridge Polygon tests", () => {
              const eventSignatureHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(eventSignature));
 
              // Receipt information
-            const eventSignatureHashReceived = tx_result2.logs[1].topics[0];
-            const eventToParametrFrom = ethers.utils.defaultAbiCoder.decode(['address'], tx_result2.logs[1].topics[1])[0];
-            const eventValueParametrReceived = ethers.utils.defaultAbiCoder.decode(['uint256'], tx_result2.logs[1].data)[0];
+            const eventSignatureHashReceived = tx_result2.logs[2].topics[0];
+            const eventToParametrFrom = ethers.utils.defaultAbiCoder.decode(['address'], tx_result2.logs[2].topics[1])[0];
+            const eventValueParametrReceived = ethers.utils.defaultAbiCoder.decode(['uint256'], tx_result2.logs[2].data)[0];
 
             // Check event signature
             expect(eventSignatureHashReceived).to.be.equals(eventSignatureHash);
             // Check event _from parameter
             expect(eventToParametrFrom).to.be.equals(account3.address);
              // Check event _value parameter
-            expect(eventValueParametrReceived).to.be.equals(transferAmount); 
+            expect(eventValueParametrReceived).to.be.equals(transferAmount);  
         });
     });
 });

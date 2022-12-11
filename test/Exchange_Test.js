@@ -79,7 +79,6 @@ describe("Exchange tests", () => {
         if(tx_result4.confirmations < 0 || tx_result4 === undefined) {
            throw new Error("Transaction failed");
         }
-
     });
 
     describe("Constructor tests", () => {
@@ -156,6 +155,8 @@ describe("Exchange tests", () => {
              const account3BalanceBefore = await contractInstance.balanceOf(account3.address);
              const balanceTokenVaultBefore = await contractInstance.balanceOf(tokenVault.address);
              const balanceExchangeContractBefore =  await provider.getBalance(exchangeContractInstance.address); 
+           //  const balanceAccount3Before =  await provider.getBalance(account3.address); 
+
              const feesCollectedBefore = await exchangeContractInstance.feesCollected();
              const invariantBefore = balanceExchangeContractBefore.sub(feesCollectedBefore).mul(balanceTokenVaultBefore);
 
@@ -175,12 +176,14 @@ describe("Exchange tests", () => {
              const account3BalanceAfter = await contractInstance.balanceOf(account3.address);
              const balanceTokenVaultAfter = await contractInstance.balanceOf(tokenVault.address);
              const balanceExchangeContractAfter =  await provider.getBalance(exchangeContractInstance.address); 
+            // const balanceAccount3After =  await provider.getBalance(account3.address); 
              const feesCollectedAfter = await exchangeContractInstance.feesCollected();
              const invariantAfter = balanceExchangeContractAfter.sub(feesCollectedAfter).mul(balanceTokenVaultAfter);
 
             //console.log("INVARIANT BEFORE BUY ETHERS", invariantBefore);
            // console.log("INVARIANT AFTER BUY ETHERS", invariantAfter);
 
+            // expect(balanceAccount3Before.add(balanceExchangeContractBefore.sub(balanceExchangeContractAfter.sub(feesCollectedAfter)))).to.bo.equals(balanceAccount3After);
              expect(parseInt(account3BalanceAfter)).to.be.equals(parseInt(account3BalanceBefore) - parseInt(ethers.utils.parseEther("7")));
              expect(parseInt(balanceTokenVaultAfter)).to.be.equals(parseInt(balanceTokenVaultBefore) + parseInt(ethers.utils.parseEther("7")));
             // expect(invariantBefore).to.be.equals(invariantAfter);
@@ -394,8 +397,6 @@ describe("Exchange tests", () => {
 
             it("Try Withdraw Fees with insufficient amount", async () => {
                 await expect(exchangeContractInstance.withdrawFeesAmount()).to.be.revertedWith("Insufficient amount of fees");
-
-                
             }); 
 
             it("Try Withdraw Fees OK", async () => {

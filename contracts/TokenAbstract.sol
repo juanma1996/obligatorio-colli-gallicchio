@@ -7,7 +7,7 @@ abstract contract TokenAbstract {
     /// STATE VARIABLES
     string internal  _nameToken = "";
     string internal _symbolToken = "";
-    uint8 internal _decimalsToken;
+    uint256 internal _decimalsToken;
     uint256 internal _maxSupplyToken;
     uint256 internal _totalSupplyToken;
 
@@ -15,6 +15,18 @@ abstract contract TokenAbstract {
 
     /// STATE MAPPINGS
     mapping(address => uint256) public balanceOf;
+    mapping(address => mapping(address => uint256)) public allowance;
+
+
+    /// EVENTS
+     
+    /// @notice Trigger when tokens are transferred
+    /// @dev On new tokens creation, trigger with the `from` address set to zero address
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);
+
+    /// @notice Trigger on any successful call to `approve` method
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+
 
     /**
      * @notice Initialize the state of the contract
@@ -47,7 +59,7 @@ abstract contract TokenAbstract {
         return _symbolToken;
     }
 
-    function decimals() public virtual view returns (uint8)
+    function decimals() public virtual view returns (uint256)
     {
         return _decimalsToken;
     }
@@ -61,6 +73,64 @@ abstract contract TokenAbstract {
     {
         return _maxSupplyToken;
     }
+
+     /**
+     * @notice Transfers `_value` amount of tokens from address `_from` to address `_to`. 
+     * On success must fire the `Transfer` event.
+     * @dev Throw if `_from` is zero address. Message: "transferFrom - Invalid parameter: _from"
+     * @dev Throw if `_to` is zero address. Message: "transferFrom - Invalid parameter: _to"
+     * @dev Throw if `_to` is the same as `_from` account. Message: "transferFrom - Invalid recipient, same as remittent"
+     * @dev Throw if `_value` is zero. Message: "transferFrom - Invalid parameter: _value"
+     * @dev Throw if `_from` account has insufficient balance. Message: "transferFrom - Insufficient balance"
+     * @dev Throws if `msg.sender` is not the current owner or an approved address with permission to spend the balance of the '_from' account
+     * Message: "transferFrom - Insufficent allowance"
+     * @param _from It is the remittent account address
+     * @param _to It is the recipient account address
+     * @param _value It is the amount of tokens to transfer.
+     */
+    function transferFrom(address _from, address _to, uint256 _value) external {
+
+        // Checks
+        string memory _methodName = 'transferFrom';
+        _isZeroAddress(_from, _methodName, '_from');
+        _isZeroAddress(_to, _methodName, '_to');
+        _isZeroAmount(_value, _methodName, '_value');
+        _isValidRecipient(_from, _to, _methodName);
+        _hasSufficientBalance(_from, _value, _methodName);
+        _isAuthorized(_from, msg.sender, _value, _methodName);
+       
+        // Effects
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+        if (_from != msg.sender) 
+        {
+            uint256 currentAllowance = allowance[_from][msg.sender];
+            allowance[_from][msg.sender] = currentAllowance - _value;
+        }
+        emit Transfer(msg.sender, _to, _value);
+    }
+
+    /**
+     * @notice Allows `_spender` to withdraw from sender account multiple times, up to the `_value` amount
+     * On success must fire the `Approval` event.
+     * @dev If this function is called multiple times it overwrites the current allowance with `_value`
+     * @dev Throw if `_spender` is zero address. Message: "approve - Invalid parameter: _spender"
+     * @dev Throw if `_value` exceeds the sender's balance. Message: "approve - Insufficient balance"
+     * @param _spender It is the spender account address
+     * @param _value It is the allowance amount.
+     */
+    function approve(address _spender, uint256 _value) external {
+   
+        // Checks
+        string memory _methodName = 'approve';
+        _isZeroAddress(_spender, _methodName, '_spender');
+        _hasSufficientBalance(msg.sender, _value, _methodName);
+
+        // Effects
+        allowance[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
+    }
+
 
     /// ------------------------------------------------------------------------------------------------------------------------------------------
     /// PRIVATE FUNCTIONS
@@ -108,6 +178,13 @@ abstract contract TokenAbstract {
      function _hasSufficientBalance(address _address, uint256 _value, string memory _methodName) internal virtual view {
         if (balanceOf[_address] < _value) {
             string memory _message = _concatMessage(_methodName, " - Insufficient balance", "");
+            revert(_message);
+        }
+    }
+
+     function _isAuthorized(address _owner, address _spender, uint256 _value, string memory _methodName) private view {
+        if (_owner != _spender && allowance[_owner][_spender] < _value) {
+            string memory _message = _concatMessage(_methodName, " - Insufficent allowance", "");
             revert(_message);
         }
     }

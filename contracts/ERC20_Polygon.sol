@@ -11,6 +11,7 @@ contract ERC20_Polygon is TokenAbstract
 
     constructor(string memory _name, string memory _symbol, uint256 _maxSupply) TokenAbstract(_name, _symbol, _maxSupply)
     {
+        // Effects
         _maxSupplyToken = _maxSupply;
         _totalSupplyToken = 0;
         balanceOf[msg.sender] = 0;
@@ -42,17 +43,18 @@ contract ERC20_Polygon is TokenAbstract
      * @dev Throw if `_from` account has insufficient tokens to burn. Message: "burn - Insufficient balance"
      * @param _value It is the number of new tokens to be burned
      */
-    function burn(address _from, uint256 _value) external {
+    function burn(uint256 _value) external {
         // Checks
         string memory _methodName = 'burn';
-        _isZeroAddress(_from, _methodName, '_from');
+        _isZeroAddress(msg.sender, _methodName, '_from');
         _isZeroAmount(_value, _methodName, '_value');
-        _hasSufficientBalance(_from, _value, _methodName);
+        _hasSufficientBalance(msg.sender, _value, _methodName);
+
         // Effects
-        balanceOf[_from] -= _value;
+        balanceOf[msg.sender] -= _value;
         _totalSupplyToken -= _value;
 
-        emit Burn(_from, _value);
+        emit Burn(msg.sender, _value);
     }
 
     /// ------------------------------------------------------------------------------------------------------------------------------------------

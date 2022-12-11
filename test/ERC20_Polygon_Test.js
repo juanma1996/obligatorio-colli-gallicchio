@@ -105,56 +105,10 @@ describe("ERC20 Polygon tests", () => {
     });
 
     describe("Burn tests", () => {
-        it("Try to burn from zero address", async () => {
-            const amountToBurn = ethers.utils.parseEther("1");
-            await expect(contractInstance.burn(zeroAddress, amountToBurn)).to.be.revertedWith("burn - Invalid parameter: _from");
-        });
-        
+
         it("Try to burn zero amount", async () => {
             const amountToBurn = ethers.utils.parseEther("0");
-            await expect(contractInstance.burn(signer.address, amountToBurn)).to.be.revertedWith("burn - Invalid parameter: _value");
-        });
-
-        it("Try to burn an amount that overcame the signer balance", async () => {
-            const amountToBurn = ethers.utils.parseEther("2000");
-            await expect(contractInstance.burn(signer.address, amountToBurn)).to.be.revertedWith("burn - Insufficient balance");
-        });
-
-        it("Burn 500 tokens from signer account", async () => {
-            const signerBalanceBefore = await contractInstance.balanceOf(signer.address);
-            const totalSupplyBefore = await contractInstance.totalSupply();
-
-            const amountToBurn = ethers.utils.parseEther("500");
-            const tx = await contractInstance.burn(signer.address, amountToBurn);
-
-            tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
-            if(tx_result.confirmations < 0 || tx_result === undefined) {
-                throw new Error("Transaction failed");
-            }
-
-            // Check balance
-            const signerBalanceAfter = await contractInstance.balanceOf(signer.address);
-            const totalSupplyAfter = await contractInstance.totalSupply();
-
-            expect(parseInt(signerBalanceAfter)).to.be.lessThanOrEqual(parseInt(signerBalanceBefore) + parseInt(amountToBurn));
-            expect(parseInt(totalSupplyAfter)).to.be.equals(parseInt(totalSupplyBefore) - parseInt(amountToBurn));
-
-            // Check event emited
-            const eventSignature = "Burn(address,uint256)";
-            const eventSignatureHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(eventSignature));
-                        
-            // Receipt information
-            const eventSignatureHashReceived = tx_result.logs[0].topics[0];
-            const eventFromParametrReceived = ethers.utils.defaultAbiCoder.decode(['address'], tx_result.logs[0].topics[1])[0];
-            const eventValueParametrReceived = ethers.utils.defaultAbiCoder.decode(['uint256'], tx_result.logs[0].data)[0];
-
-            // Check event signayure
-            expect(eventSignatureHashReceived).to.be.equals(eventSignatureHash);
-            // Check event _from parameter
-            expect(eventFromParametrReceived).to.be.equals(signer.address);
-            // Check event _value parameter
-            expect(eventValueParametrReceived).to.be.equals(amountToBurn);
-            
+            await expect(contractInstance.burn(amountToBurn)).to.be.revertedWith("burn - Invalid parameter: _value");
         });
     });
 

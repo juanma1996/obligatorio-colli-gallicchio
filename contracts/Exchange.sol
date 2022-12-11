@@ -8,11 +8,12 @@ contract Exchange {
     /// STATE VARIABLES
     address public tokenVault;
     address public erc20Ethereum;
-    uint8 public decimalsToken;
-    uint256 public feePercentage;
+    uint256 public decimalsToken;
     address public owner;
-    uint256 public invariant;
+    uint256 public feePercentage;
     uint256 public feesCollected;
+    uint256 public invariant;
+  
 
     /*
      * @notice Initialize the state of the contract
@@ -45,9 +46,7 @@ contract Exchange {
         if (tokenVaultAmount < _tokenAmount){
             revert("Insufficient tokens in the vault");
         }
-      
-        transferFromTokenContract(msg.sender, _tokenVault, _tokenAmount, _erc20Ethereum);
-       
+ 
         // Effects
         decimalsToken = 18;
         feePercentage = 3 * (10 ** uint256(15));
@@ -55,10 +54,14 @@ contract Exchange {
         tokenVault = _tokenVault;
         erc20Ethereum = _erc20Ethereum;
         invariant = (msg.value * (_tokenAmount + tokenVaultAmount)) / _getUnitDecimals();
+
+        //Interactions
+        transferFromTokenContract(msg.sender, _tokenVault, _tokenAmount, _erc20Ethereum);
     }
 
     function getExchangeRate() external view returns (uint256)
     {
+         // Effects
         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
         uint256 balanceOfContract = address(this).balance; 
         uint256 result = tokenAmountOfTokenVault - ((invariant * _getUnitDecimals()) / ((balanceOfContract - feesCollected + (1 ether)))); 
@@ -68,6 +71,7 @@ contract Exchange {
 
     function calculateEtherAmount(uint256 _tokenAmount) external view returns(uint256)
     {
+         // Effects
         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
         uint256 balanceOfContract = address(this).balance; 
    
@@ -77,7 +81,7 @@ contract Exchange {
 
     function calculateTokensPerEthers() private view returns(uint256)
     {
-        
+         // Effects
         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
         uint256 balanceOfContract = address(this).balance;
         uint256 result = tokenAmountOfTokenVault - ((invariant * _getUnitDecimals()) / ((balanceOfContract - feesCollected))); 
@@ -86,7 +90,7 @@ contract Exchange {
 
      function calculateEthersToSellTokens(uint256 _tokenAmount) private view returns(uint256)
     {
-        
+         // Effects
         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
         uint256 balanceOfContract = address(this).balance; 
         
@@ -97,7 +101,7 @@ contract Exchange {
 
     function calculateEthersToBuyTokens(uint256 _tokenAmount, uint256 _ethersOfTransaction) private view returns(uint256)
     {
-        
+         // Effects
         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
         uint256 balanceOfContract = address(this).balance; 
         uint256 result =  ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault - _tokenAmount) ) - (balanceOfContract - _ethersOfTransaction - feesCollected); 
@@ -106,38 +110,39 @@ contract Exchange {
     }
 
     function buyToken(uint256 _amountTokenToBuy) external payable{
+         // Checks
         if (_amountTokenToBuy == 0) {
            revert("Invalid _amountToBuy value");
         }
    
         uint256 etherAmountToCollect = calculateEthersToBuyTokens(_amountTokenToBuy, msg.value) ;
-        
         uint256 feeToCharge = (etherAmountToCollect * feePercentage) / 1 ether; 
-        
-        etherAmountToCollect += feeToCharge;
-        feesCollected += feeToCharge;
-        if (msg.value < etherAmountToCollect)
+        if (msg.value < (etherAmountToCollect + feeToCharge))
         {
              revert("Insufficient ethers");
         }
 
-        transferFromTokenContract(tokenVault, msg.sender, _amountTokenToBuy, erc20Ethereum);
+        // Effects
+        etherAmountToCollect += feeToCharge;
+        feesCollected += feeToCharge;
 
+        //Interactions
         if (msg.value > etherAmountToCollect)
         {
             payable(msg.sender).transfer(msg.value - etherAmountToCollect);
         }  
+        transferFromTokenContract(tokenVault, msg.sender, _amountTokenToBuy, erc20Ethereum);
     }
 
     function buyEther(uint256 _amountTokenToExchage) external
     {
+         // Checks
         if (_amountTokenToExchage == 0) 
         {
            revert("Invalid _amountToExchage value");
         }
          _isInsuffientBalance(msg.sender, _amountTokenToExchage,erc20Ethereum);
-        uint256 etherAmountToPay = calculateEthersToSellTokens(_amountTokenToExchage) ;
-
+        uint256 etherAmountToPay = calculateEthersToSellTokens(_amountTokenToExchage);
         uint256 feeToCharge;
         if(feePercentage < 1 ether){
               feeToCharge = (etherAmountToPay * feePercentage) / 1 ether; 
@@ -146,38 +151,49 @@ contract Exchange {
         {
              feeToCharge = ((etherAmountToPay * feePercentage) / _convertValueWithDecimals(100)); 
         }
-        etherAmountToPay -= feeToCharge;
-        if((address(this).balance - feesCollected)  < etherAmountToPay)
+        
+        if((address(this).balance - feesCollected)  < (etherAmountToPay- feeToCharge))
         {
             revert("Insufficient balance");
         }
+
+         // Effects
+        etherAmountToPay -= feeToCharge;
         feesCollected += feeToCharge;
-        transferFromTokenContract(msg.sender, tokenVault, _amountTokenToExchage, erc20Ethereum);
-        
+      
+        //Interactions
         payable(msg.sender).transfer(etherAmountToPay);
+        transferFromTokenContract(msg.sender, tokenVault, _amountTokenToExchage, erc20Ethereum);
     }
 
     function setFeePercentage(uint256 _feePercentage) external{
-         if (_feePercentage == 0) 
+         // Checks
+        
+        if (_feePercentage == 0) 
         {
            revert("Invalid _feePercentage value");
         }
          _isOwnerProtocol(msg.sender);
 
-         feePercentage = _feePercentage;
+        // Effects
+        feePercentage = _feePercentage;
     }
 
     function deposit() external payable
     {
+         // Checks
          _isOwnerProtocol(msg.sender);
          uint256 amountToExchange = calculateTokensPerEthers();
         _isInsuffientBalance(msg.sender, amountToExchange, erc20Ethereum);
+
+        //Interactions
          transferFromTokenContract(msg.sender, tokenVault, amountToExchange, erc20Ethereum);
 
     }
 
     function withdrawFeesAmount() external
     {
+        // Checks
         _isOwnerProtocol(msg.sender);
         uint256 feeAux = feesCollected;
         feesCollected = 0;
@@ -187,11 +203,13 @@ contract Exchange {
              revert("Insufficient amount of fees");
         }
         
+        //Interactions
         payable(msg.sender).transfer(feeAux);
     }
 
     function setTokenVault(address _tokenVault) external{
 
+        // Checks
          if (_tokenVault == address(0)) {
            revert("Invalid address _tokenVault");
         }
@@ -212,6 +230,7 @@ contract Exchange {
             revert("Invalid tokenVault address");
         }
      
+        // Effects
         invariant = (tokenVaultBalance * (address(this).balance - feesCollected)) / 1 ether;
         tokenVault = _tokenVault;
     }
