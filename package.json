@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",
+    "@nomiclabs/hardhat-ganache": "^2.0.1",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "chai": "^4.3.7",
     "chai-match": "^1.1.1",

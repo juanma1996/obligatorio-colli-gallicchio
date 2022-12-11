@@ -19,11 +19,12 @@ async function main() {
     /// --------------------------------------------------------------------------------------------------
     // Get Signer
     const [signer, tokenVault] = await ethers.getSigners();
-    const provider = ethers.provider;
+    //const provider = ethers.provider;
     const confirmations_number  =  1;
+    
     //Get provider for testnet Ganache
-    //const accessPoint_URL = process.env.GANACHE_URL;
-    //const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);  
+    const accessPoint_URL = process.env.GANACHE_URL;
+    const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);  
    
     //Get provider for testnet RINKEBY
     //const accessPoint_URL = process.env.RINKEBY_ACCESSPOINT_URL;
@@ -61,7 +62,6 @@ async function main() {
                 nonce: transactionCount + 2
             })
        
-   
         const tx = await erc20EthereumInstance.approve(futureAddress, amountTokenToStartPool);
         tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
         if(tx_result.confirmations < 0 || tx_result === undefined) {

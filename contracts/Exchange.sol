@@ -71,6 +71,11 @@ contract Exchange {
 
     function calculateEtherAmount(uint256 _tokenAmount) external view returns(uint256)
     {
+         // Checks
+        if (_tokenAmount == 0) {
+           revert("Invalid _tokenAmount value");
+        }
+
          // Effects
         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
         uint256 balanceOfContract = address(this).balance; 
@@ -139,7 +144,7 @@ contract Exchange {
          // Checks
         if (_amountTokenToExchage == 0) 
         {
-           revert("Invalid _amountToExchage value");
+           revert("Invalid _amountToExchange value");
         }
          _isInsuffientBalance(msg.sender, _amountTokenToExchage,erc20Ethereum);
         uint256 etherAmountToPay = calculateEthersToSellTokens(_amountTokenToExchage);
@@ -182,13 +187,16 @@ contract Exchange {
     function deposit() external payable
     {
          // Checks
+        if (msg.value == 0) 
+        {
+           revert("No ethers deposited");
+        }
          _isOwnerProtocol(msg.sender);
          uint256 amountToExchange = calculateTokensPerEthers();
         _isInsuffientBalance(msg.sender, amountToExchange, erc20Ethereum);
 
         //Interactions
          transferFromTokenContract(msg.sender, tokenVault, amountToExchange, erc20Ethereum);
-
     }
 
     function withdrawFeesAmount() external

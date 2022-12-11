@@ -59,10 +59,6 @@ describe("Bridge Polygon tests", () => {
     });
 
     describe("mintTO tests", () => {
-        it("Try send not protocol owner in _owner", async () => {
-            const newInstancePolygonBridgeContract = await polygonBridgeContractInstance.connect(account1);
-            await expect(newInstancePolygonBridgeContract.mintTo(account1.address, 0)).to.be.revertedWith("Not authorized");
-        });
 
         it("Try send zero address  in _to value", async () => {
             await expect(polygonBridgeContractInstance.mintTo(zeroAddress, 0)).to.be.revertedWith("_to cannot be zero address");
@@ -127,11 +123,7 @@ describe("Bridge Polygon tests", () => {
     })
 
     describe("transferToEthereum tests", () => {
-        it("Try send _recipient value in Black List", async () => {
-            const newInstancePolygonBridgeContract = await polygonBridgeContractInstance.connect(account2);
-            await expect(newInstancePolygonBridgeContract.transferToEthereum(0)).to.be.revertedWith("_recipient address is in blacklist");
-        });
-
+     
         it("Try send zero value in _tokenAmount", async () => {
             await expect(polygonBridgeContractInstance.transferToEthereum(0)).to.be.revertedWith("_tokenAmount must be greater than zero");
         });

@@ -135,7 +135,7 @@ describe("Exchange tests", () => {
     describe("Test Buy Ether",  () => {
        
          it("Try send Zero in amount to exchange", async () => {
-            await expect(exchangeContractInstance.buyEther(0)).to.be.revertedWith("Invalid _amountToExchage value");
+            await expect(exchangeContractInstance.buyEther(0)).to.be.revertedWith("Invalid _amountToExchange value");
         });
 
         it("Try send without Approval to Exchange Contract", async () => {
@@ -305,8 +305,13 @@ describe("Exchange tests", () => {
     describe("Deposit Test",  () => {
         it("Try Deposit with not owner", async () => {
             const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
-            await expect(newInstanceExchangeContract.deposit({value:0})).to.be.revertedWith("Not authorized");
+            await expect(newInstanceExchangeContract.deposit({value:1})).to.be.revertedWith("Not authorized");
         }); 
+
+        it("Try Deposit send zero ethers", async () => {
+            const amountEther = ethers.utils.parseEther("1");
+            await expect(exchangeContractInstance.deposit({value:0})).to.be.revertedWith("No ethers deposited");
+         }); 
 
         it("Try Deposit with not authorization to Exchange Contract for operate balance", async () => {
             const amountEther = ethers.utils.parseEther("1");
@@ -373,6 +378,11 @@ describe("Exchange tests", () => {
         describe("Set Fee Percentage tests", () => {
             it("Try send zero value to set FEE", async () => {
                 await expect(exchangeContractInstance.setFeePercentage(0)).to.be.revertedWith("Invalid _feePercentage value");
+            }); 
+
+            it("Try send not owner to set fee", async () => {
+                const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
+                await expect(newInstanceExchangeContract.setFeePercentage(2)).to.be.revertedWith("Not authorized");
             }); 
 
             it("Try Set FEE Percentage OK", async () => {
@@ -447,6 +457,10 @@ describe("Exchange tests", () => {
         });
 
         describe("Calculate Ether Amount", () => {
+            it("Try Send zero  value in _tokenAmount", async () => {
+                await expect(exchangeContractInstance.calculateEtherAmount(0)).to.be.revertedWith("Invalid _tokenAmount value");
+            }); 
+
             it("Calculate Ether Amount OK", async () => {
                 const tokenAmount = ethers.utils.parseEther("2");
                 await exchangeContractInstance.calculateEtherAmount(tokenAmount);
