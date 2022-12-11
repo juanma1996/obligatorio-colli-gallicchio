@@ -15,39 +15,42 @@ contract Bridge_Polygon is BridgeAbstract
     /// @dev Trigger with the `to` address and token amount
     event MintOrder(address indexed _to, uint256 _tokenAmount);
 
-    constructor(address erc20Conctract) BridgeAbstract(){
-         if (erc20Conctract == address(0)) {
+    constructor(address erc20Polygon) BridgeAbstract(){
+         if (erc20Polygon == address(0)) {
             revert("Invalid address _erc20Contract");
         }
-        if (!_isSmartContractAddress(erc20Conctract)) {
+        if (!_isSmartContractAddress(erc20Polygon)) {
             revert("_erc20Contract is not a contract");
         }
-        _erc20Contract = erc20Conctract;
+        _erc20Contract = erc20Polygon;
     }
     
     function mintTo(address _to, uint256 _tokenAmount) external{
-        _isOwnerProtocol(msg.sender);
-        _isZeroAddress(_to, '_to');
+         _isOwnerProtocol(msg.sender);
         if (_blacklistAddress[_to]) {
             revert("_to address is in blacklist");
         }
+         _isZeroAddress(_to, '_to');
         _isZeroValue(_tokenAmount, '_tokenAmount');
-        uint256 totalSupply =   totalSupplyTokenContract(erc20Contract());
-        if (totalSupply < _tokenAmount) {
-            revert("_tokenAmount exceeds max supply");
-        }
+         _exceedsMaxSupply(_tokenAmount);
         mintTokenContract (_to, _tokenAmount,erc20Contract());
         emit MintOrder(_to, _tokenAmount);
     }
 
-    function transferToEthereum(uint256 _tokenAmount) external{
+    function transferToEthereum(uint256 _tokenAmount, address _recipient) external{
+        _isOwnerProtocol(msg.sender);
+        if (_blacklistAddress[_recipient]) {
+            revert("_recipient address is in blacklist");
+        }
+        _isZeroAddress(_recipient, '_recipient');
         _isZeroValue(_tokenAmount, '_tokenAmount');
-        uint256 tokenVaultAmount = balanceOfTokenContract(msg.sender, erc20Contract());
-        if (tokenVaultAmount < _tokenAmount){
+       
+        uint256 tokenRecipientAmount = balanceOfTokenContract(_recipient, erc20Contract());
+        if (tokenRecipientAmount < _tokenAmount){
             revert("_tokenAmount value exceed balance");
         }
-        burnTokenContract (_tokenAmount,erc20Contract());
-        emit TransferToEthereum(msg.sender, _tokenAmount);
+        burnTokenContract (_recipient, _tokenAmount,erc20Contract());
+        emit TransferToEthereum(_recipient, _tokenAmount);
     }
 
     // /// ------------------------------------------------------------------------------------------------------------------------------------------
@@ -61,20 +64,16 @@ contract Bridge_Polygon is BridgeAbstract
          return (codeHash != zeroAccountHash && codeHash != 0x0);
      }
 
-     function mintTokenContract(address _to, uint256 _tokenAmount, address _erc20Conctract) private{
-        ITokenContractPolygon(_erc20Conctract).mint(_to, _tokenAmount);
+     function mintTokenContract(address _to, uint256 _tokenAmount, address _erc20Polygon) private{
+        ITokenContractPolygon(_erc20Polygon).mint(_to, _tokenAmount);
     }
 
-     function balanceOfTokenContract(address _from, address _erc20Conctract) private  view returns (uint256) {
-            return ITokenContractPolygon(_erc20Conctract).balanceOf(_from);
+     function balanceOfTokenContract(address _from, address _erc20Polygon) private  view returns (uint256) {
+            return ITokenContractPolygon(_erc20Polygon).balanceOf(_from);
     }
 
-     function totalSupplyTokenContract(address _erc20Conctract) private  view returns (uint256) {
-            return ITokenContractPolygon(_erc20Conctract).totalSupply();
-    }
-
-    function burnTokenContract(uint256 _tokenAmount, address _erc20Conctract) private{
-        ITokenContractPolygon(_erc20Conctract).burn(_tokenAmount);
+    function burnTokenContract(address _from, uint256 _tokenAmount, address _erc20Polygon) private{
+        ITokenContractPolygon(_erc20Polygon).burn(_from, _tokenAmount);
     }
 
 }

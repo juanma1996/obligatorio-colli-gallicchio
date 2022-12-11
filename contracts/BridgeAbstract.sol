@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
+import "./interfaces/ITokenContract.sol";
 
 abstract contract BridgeAbstract {
 
@@ -75,5 +76,18 @@ abstract contract BridgeAbstract {
             string memory _message = string.concat( _parameterName, " must be greater than zero");
             revert(_message);
         }
+    }
+
+    function _exceedsMaxSupply(uint256 _tokenAmount) internal virtual view 
+    {
+        uint256 maxSupply =   maxSupplyTokenContract(erc20Contract());
+        if ( _tokenAmount  > maxSupply) 
+        {
+            revert("_tokenAmount exceeds max supply");
+        }
+    }
+
+    function maxSupplyTokenContract(address _erc20Conctract) private view returns (uint256)  {
+            return ITokenContract(_erc20Conctract).maxSupply();
     }
 }

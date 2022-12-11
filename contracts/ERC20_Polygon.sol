@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 import "./TokenAbstract.sol";
-
+import "hardhat/console.sol";
 contract ERC20_Polygon is TokenAbstract 
 {
     /// EVENTS
     /// @notice Trigger when tokens are transferred
     /// @dev On new tokens creation, trigger with the `from` address set to zero address
-    event Transfer(address indexed _from, address indexed _to, uint256 _value);
+    event Burn(address indexed _from, uint256 _value);
 
     constructor(string memory _name, string memory _symbol, uint256 _maxSupply) TokenAbstract(_name, _symbol, _maxSupply)
     {
@@ -27,14 +27,13 @@ contract ERC20_Polygon is TokenAbstract
     function mint(address _recipient, uint256 _amountToMint) external{
         // Checks
         string memory _methodName = 'mint';
-        _isZeroValue(_amountToMint, _methodName, '_amountToMint');
         _isZeroAddress(_recipient, _methodName, '_recipient');
+        _isZeroValue(_amountToMint, _methodName, '_amountToMint');
         _isMaxSupply(_methodName, _amountToMint);
 
         // Effects
         _totalSupplyToken += _amountToMint;
-        balanceOf[msg.sender] += _amountToMint;
-        emit Transfer(address(0), msg.sender, _amountToMint);
+        balanceOf[_recipient] += _amountToMint;
     }
 
     /**
@@ -43,15 +42,17 @@ contract ERC20_Polygon is TokenAbstract
      * @dev Throw if `_from` account has insufficient tokens to burn. Message: "burn - Insufficient balance"
      * @param _value It is the number of new tokens to be burned
      */
-    function burn(uint256 _value) external {
+    function burn(address _from, uint256 _value) external {
         // Checks
         string memory _methodName = 'burn';
+        _isZeroAddress(_from, _methodName, '_from');
         _isZeroAmount(_value, _methodName, '_value');
-        _hasSufficientBalance(msg.sender, _value, _methodName);
-
+        _hasSufficientBalance(_from, _value, _methodName);
         // Effects
-        balanceOf[msg.sender] -= _value;
+        balanceOf[_from] -= _value;
         _totalSupplyToken -= _value;
+
+        emit Burn(_from, _value);
     }
 
     /// ------------------------------------------------------------------------------------------------------------------------------------------

@@ -11,31 +11,15 @@ contract Bridge_Ethereum is BridgeAbstract
     /// @dev Trigger with the `from` address and token amount
     event TransferToPolygon(address indexed _from, uint256 _tokenAmount);
 
-    /// STATE VARIABLES
-    //uint256 private _maxAmountTokenPerTransfer;
-    uint256 private _maxSupplyToken;
-    uint256 private _totalSupplyToken;
-
     /// STATE MAPPINGS
-    mapping(address => uint256) public _tokenStaking;
+    mapping(address => uint256) public tokenStaking;
 
-    constructor(address erc20Conctract, uint256 maxSupplyToken) BridgeAbstract(){
+    constructor(address erc20Conctract) BridgeAbstract(){
         
         if (erc20Conctract == address(0)) {
             revert("erc20Conctract cannot be zero address");
         }
         _erc20Contract = erc20Conctract;
-        _maxSupplyToken = maxSupplyToken;
-    }
-
-    function totalSupply() public view returns (uint256)
-    {
-        return _totalSupplyToken;
-    }
-
-    function maxSupply() public view returns (uint256)
-    {
-        return _maxSupplyToken;
     }
 
     function transferToPolygon(uint256 _tokenAmount) external{
@@ -43,9 +27,7 @@ contract Bridge_Ethereum is BridgeAbstract
             revert("_tokenAmount must be greater than zero");
         }
         
-        if (_tokenAmount > _maxSupplyToken) {
-            revert("_tokenAmount exceeds max supply");
-        }
+        _exceedsMaxSupply(_tokenAmount);
 
         if (_blacklistAddress[msg.sender]) {
             revert("Invalid sender");
@@ -56,10 +38,10 @@ contract Bridge_Ethereum is BridgeAbstract
             revert("Insufficient balance");
         }
 
-        _tokenStaking[msg.sender] += _tokenAmount; 
-        _totalSupplyToken += _tokenAmount; 
-        emit TransferToPolygon(msg.sender, _tokenAmount);    
+        tokenStaking[msg.sender] += _tokenAmount; 
+     
         transferFromTokenContract(msg.sender, address(this), _tokenAmount, erc20Contract());
+        emit TransferToPolygon(msg.sender, _tokenAmount);    
        
     }
 
@@ -71,16 +53,15 @@ contract Bridge_Ethereum is BridgeAbstract
             revert("_owner address is in blacklist");
         }
         _isZeroValue(_tokenAmount, '_tokenAmount');
-        if (_tokenStaking[ownerAddress] == 0){
+        if (tokenStaking[ownerAddress] == 0){
             revert("_owner address has no stake");
         }
 
-        if (_tokenStaking[ownerAddress] < _tokenAmount){
+        if (tokenStaking[ownerAddress] < _tokenAmount){
             revert("_tokenAmount value exceed staking");
         }
        
-        _tokenStaking[ownerAddress] -= _tokenAmount;
-        _totalSupplyToken -= _tokenAmount; 
+        tokenStaking[ownerAddress] -= _tokenAmount;
         transferTokenContract(ownerAddress, _tokenAmount, erc20Contract());
     }
 

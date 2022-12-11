@@ -57,11 +57,12 @@ describe("ERC20 Ethereum tests", () => {
             const receivedSymbol = await contractInstance.symbol();
             const receivedMaxSupply = await contractInstance.maxSupply();
             const receivedTotalSupply = await contractInstance.totalSupply();
+            const receivedDecimals = await contractInstance.decimals();
 
             expect(receivedName).to.be.equals(name);
             expect(receivedSymbol).to.be.equals(symbol);
             expect(receivedMaxSupply).to.be.equals(maxSupplyToken);
-            expect(receivedTotalSupply).to.be.equals(maxSupplyToken);
+            expect(receivedDecimals).to.be.equals(18);
             
         });
     });

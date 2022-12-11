@@ -34,7 +34,8 @@ abstract contract TokenAbstract {
         _nameToken = _name;
         _symbolToken = _symbol;
         _maxSupplyToken = _maxSupply;
-       owner = msg.sender;
+        _decimalsToken = 18;
+        owner = msg.sender;
     }
 
     function name() public virtual view returns (string memory){
