@@ -13,8 +13,8 @@ const { Console } = require("console");
 chai.use(solidity);
 const { expect } = chai;
 
-const contractPath = "contracts/TokenContract.sol:TokenContract";
-const ethereumBridgeContractPath = "contracts/EthereumBridgeContract.sol:EthereumBridgeContract";
+const contractPath = "contracts/ERC20_Ethereum.sol:ERC20_Ethereum";
+const ethereumBridgeContractPath = "contracts/Bridge_Ethereum.sol:Bridge_Ethereum";
 const confirmations_number  =  1;
 const zeroAddress = '0x0000000000000000000000000000000000000000';
 let contractInstance;
@@ -24,39 +24,32 @@ let ethereumBridgeContractInstance;
 const name = "Obli_Token";
 const symbol = "OTKN";
 
-describe("Ethereum Bridge Contract tests", () => {
+describe("Bridge Ethereum tests", () => {
     before(async () => {
       
         console.log("-----------------------------------------------------------------------------------");
-        console.log(" -- Ethereum Bridge Contract tests start");
+        console.log(" -- Bridge Ethereum tests start");
         console.log("-----------------------------------------------------------------------------------");
 
         // Get Signer and provider
         [signer, account1, account2, account3, account4] = await ethers.getSigners();
         provider = ethers.provider;
 
-        const maxSupplyToken = ethers.utils.parseEther("50");
-
-        // Deploy Token Contract
-        const contractFactory = await ethers.getContractFactory(contractPath, signer);
-        contractInstance = await contractFactory.deploy(name, symbol);
+         // Deploy ERC20 Ethereum
+         const maxSupplyERC20Ethereum = ethers.utils.parseEther("1000000");
+         const contractFactory = await ethers.getContractFactory(contractPath, signer);
+         contractInstance = await contractFactory.deploy(name, symbol, maxSupplyERC20Ethereum);
 
         // Deploy Ethereum Bridge Contract
         const ethereumBridgeContractFactory = await ethers.getContractFactory(ethereumBridgeContractPath, signer);
-        ethereumBridgeContractInstance = await ethereumBridgeContractFactory.deploy(contractInstance.address, maxSupplyToken);
+        ethereumBridgeContractInstance = await ethereumBridgeContractFactory.deploy(contractInstance.address);
 
     });
 
     describe("Constructor tests", () => {
         it("Try send zero address in ERC20 Address value", async () => {
             const ethereumBridgeContractFactory = await ethers.getContractFactory(ethereumBridgeContractPath, signer);
-            await expect(ethereumBridgeContractFactory.deploy(zeroAddress, 0)).to.be.revertedWith("erc20Conctract cannot be zero address");
-        });
-
-        it("Try MaxSupply OK", async () => {
-            const maxSupplyToken = ethers.utils.parseEther("50");
-            const maxSupplyTokenSet = await ethereumBridgeContractInstance.maxSupply();
-            expect(parseInt(maxSupplyTokenSet)).to.be.equals(parseInt(maxSupplyToken));
+            await expect(ethereumBridgeContractFactory.deploy(zeroAddress)).to.be.revertedWith("erc20Conctract cannot be zero address");
         });
 
         it("Try Owner OK", async () => {
@@ -71,8 +64,9 @@ describe("Ethereum Bridge Contract tests", () => {
         });
 
         it("Try send exceeds max suply", async () => {
-            const transferAmount = ethers.utils.parseEther("51");
-            await expect(ethereumBridgeContractInstance.transferToPolygon(transferAmount)).to.be.revertedWith("_tokenAmount exceeds max supply");
+            const oneTokenAmount = ethers.utils.parseEther("1");
+            const maxSupplyNew = (await contractInstance.maxSupply()).add(oneTokenAmount);
+            await expect(ethereumBridgeContractInstance.transferToPolygon(maxSupplyNew)).to.be.revertedWith("_tokenAmount exceeds max supply");
         });
 
         it("Try send with sender in Black List", async () => {
@@ -123,7 +117,7 @@ describe("Ethereum Bridge Contract tests", () => {
 
             const account3BalanceBefore = await contractInstance.balanceOf(account3.address);
             const ethereumBridgeContractBalanceBefore = await contractInstance.balanceOf(ethereumBridgeContractInstance.address);
-            const totalSupplyBefore = await ethereumBridgeContractInstance.totalSupply();
+            const totalStakingBefore = await ethereumBridgeContractInstance.tokenStaking(account3.address);
 
             const newInstanceEthereumBridgeContract = await ethereumBridgeContractInstance.connect(account3);
             
@@ -143,19 +137,19 @@ describe("Ethereum Bridge Contract tests", () => {
 
             const account3BalanceAfter = await contractInstance.balanceOf(account3.address);
             const ethereumBridgeContractBalanceAfter = await contractInstance.balanceOf(ethereumBridgeContractInstance.address);
-            const totalSupplyAfter = await ethereumBridgeContractInstance.totalSupply();
+            const totalStakingAfter = await ethereumBridgeContractInstance.tokenStaking(account3.address);
             expect(parseInt(account3BalanceAfter)).to.be.equals(parseInt(account3BalanceBefore - transferAmount));
             expect(parseInt(ethereumBridgeContractBalanceAfter)).to.be.equals(parseInt(ethereumBridgeContractBalanceBefore + transferAmount));
-            expect(parseInt(totalSupplyAfter)).to.be.equals(parseInt(totalSupplyBefore + transferAmount));
+            expect(parseInt(totalStakingAfter)).to.be.equals(parseInt(totalStakingBefore + transferAmount));
 
              // Check event emited
              const eventSignature = "TransferToPolygon(address,uint256)";
              const eventSignatureHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(eventSignature));
 
              // Receipt information
-            const eventSignatureHashReceived = tx_result2.logs[0].topics[0];
-            const eventSenderParametrReceived = ethers.utils.defaultAbiCoder.decode(['address'], tx_result2.logs[0].topics[1])[0];
-            const eventValueParametrReceived = ethers.utils.defaultAbiCoder.decode(['uint256'], tx_result2.logs[0].data)[0];
+            const eventSignatureHashReceived = tx_result2.logs[1].topics[0];
+            const eventSenderParametrReceived = ethers.utils.defaultAbiCoder.decode(['address'], tx_result2.logs[1].topics[1])[0];
+            const eventValueParametrReceived = ethers.utils.defaultAbiCoder.decode(['uint256'], tx_result2.logs[1].data)[0];
 
             // Check event signature
             expect(eventSignatureHashReceived).to.be.equals(eventSignatureHash);
