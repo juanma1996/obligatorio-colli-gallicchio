@@ -69,6 +69,25 @@ contract Exchange {
         return result;
     }
 
+    function calculateTokensPerEthers() private view returns(uint256)
+    {
+         // Effects
+        uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
+        uint256 balanceOfContract = address(this).balance;
+        uint256 result = tokenAmountOfTokenVault - ((invariant * _getUnitDecimals()) / ((balanceOfContract - feesCollected))); 
+        return result;
+    }
+
+    function calculateEthersToSellTokens(uint256 _tokenAmount) private view returns(uint256)
+    {
+         // Effects
+        uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
+        uint256 balanceOfContract = address(this).balance; 
+        uint256 result =  (balanceOfContract  - feesCollected) - ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault + _tokenAmount) ); 
+        
+        return result;
+    } 
+
     function calculateEtherAmount(uint256 _tokenAmount) external view returns(uint256)
     {
          // Checks
@@ -79,28 +98,7 @@ contract Exchange {
          // Effects
         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
         uint256 balanceOfContract = address(this).balance; 
-   
         uint256 result =  ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault - _tokenAmount) ) - (balanceOfContract  - feesCollected); 
-        return result;
-    }
-
-    function calculateTokensPerEthers() private view returns(uint256)
-    {
-         // Effects
-        uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
-        uint256 balanceOfContract = address(this).balance;
-        uint256 result = tokenAmountOfTokenVault - ((invariant * _getUnitDecimals()) / ((balanceOfContract - feesCollected))); 
-        return result;
-    }
-
-     function calculateEthersToSellTokens(uint256 _tokenAmount) private view returns(uint256)
-    {
-         // Effects
-        uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
-        uint256 balanceOfContract = address(this).balance; 
-        
-        uint256 result =   (balanceOfContract - feesCollected)  - ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault + _tokenAmount) ); 
-
         return result;
     }
 
@@ -109,14 +107,15 @@ contract Exchange {
          // Effects
         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
         uint256 balanceOfContract = address(this).balance; 
-        uint256 result =  ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault - _tokenAmount) ) - (balanceOfContract - _ethersOfTransaction - feesCollected); 
-       
+        uint256 result =  ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault - _tokenAmount) ) - (balanceOfContract  - feesCollected - _ethersOfTransaction); 
+        
         return result;
     }
 
     function buyToken(uint256 _amountTokenToBuy) external payable{
          // Checks
-        if (_amountTokenToBuy == 0) {
+        if (_amountTokenToBuy == 0) 
+        {
            revert("Invalid _amountToBuy value");
         }
    

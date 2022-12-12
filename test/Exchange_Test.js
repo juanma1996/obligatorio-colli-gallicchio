@@ -146,19 +146,17 @@ describe("Exchange tests", () => {
             
         });  
 
-          it("Try send Buy Ethers OK", async () => {
+          it("Try send Buy Ethers OK", async () => 
+          {
              const amountToExchage = ethers.utils.parseEther("7");
-             const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
-             const newInstancecontract = await contractInstance.connect(account3);
 
-            
-             const account3BalanceBefore = await contractInstance.balanceOf(account3.address);
-             const balanceTokenVaultBefore = await contractInstance.balanceOf(tokenVault.address);
-             const balanceExchangeContractBefore =  await provider.getBalance(exchangeContractInstance.address); 
-           //  const balanceAccount3Before =  await provider.getBalance(account3.address); 
-
-             const feesCollectedBefore = await exchangeContractInstance.feesCollected();
-             const invariantBefore = balanceExchangeContractBefore.sub(feesCollectedBefore).mul(balanceTokenVaultBefore);
+            const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
+            const newInstancecontract = await contractInstance.connect(account3);
+            const account3BalanceBefore = await contractInstance.balanceOf(account3.address);
+            const balanceTokenVaultBefore = await contractInstance.balanceOf(tokenVault.address);
+            const feesCollectedBefore = await exchangeContractInstance.feesCollected();
+            const balanceExchangeContractBefore =  await provider.getBalance(exchangeContractInstance.address); 
+            const invariantBefore = (balanceExchangeContractBefore.sub(feesCollectedBefore)).mul(balanceTokenVaultBefore);
 
              const tx2 = await newInstancecontract.approve(exchangeContractInstance.address, ethers.utils.parseEther("7"));
 
@@ -173,17 +171,14 @@ describe("Exchange tests", () => {
                 throw new Error("Transaction failed");
              }
 
-             const account3BalanceAfter = await contractInstance.balanceOf(account3.address);
-             const balanceTokenVaultAfter = await contractInstance.balanceOf(tokenVault.address);
-             const balanceExchangeContractAfter =  await provider.getBalance(exchangeContractInstance.address); 
-            // const balanceAccount3After =  await provider.getBalance(account3.address); 
-             const feesCollectedAfter = await exchangeContractInstance.feesCollected();
-             const invariantAfter = balanceExchangeContractAfter.sub(feesCollectedAfter).mul(balanceTokenVaultAfter);
-
+            const account3BalanceAfter = await contractInstance.balanceOf(account3.address);
+            const balanceTokenVaultAfter = await contractInstance.balanceOf(tokenVault.address);
+            const balanceExchangeContractAfter =  await provider.getBalance(exchangeContractInstance.address); 
+            const feesCollectedAfter = await exchangeContractInstance.feesCollected();
+            const invariantAfter = (balanceExchangeContractAfter.sub(feesCollectedAfter)).mul(balanceTokenVaultAfter);
             //console.log("INVARIANT BEFORE BUY ETHERS", invariantBefore);
-           // console.log("INVARIANT AFTER BUY ETHERS", invariantAfter);
+            //console.log("INVARIANT AFTER BUY ETHERS", invariantAfter);
 
-            // expect(balanceAccount3Before.add(balanceExchangeContractBefore.sub(balanceExchangeContractAfter.sub(feesCollectedAfter)))).to.bo.equals(balanceAccount3After);
              expect(parseInt(account3BalanceAfter)).to.be.equals(parseInt(account3BalanceBefore) - parseInt(ethers.utils.parseEther("7")));
              expect(parseInt(balanceTokenVaultAfter)).to.be.equals(parseInt(balanceTokenVaultBefore) + parseInt(ethers.utils.parseEther("7")));
             // expect(invariantBefore).to.be.equals(invariantAfter);
@@ -208,9 +203,12 @@ describe("Exchange tests", () => {
             const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
          
             const account3BalanceBefore = await contractInstance.balanceOf(account3.address);
+            const account3BalanceEthersBefore =  await provider.getBalance(account3.address); 
             const balanceTokenVaultBefore = await contractInstance.balanceOf(tokenVault.address);
             const balanceExchangeContractBefore =  await provider.getBalance(exchangeContractInstance.address); 
             const feesCollectedBefore = await exchangeContractInstance.feesCollected();
+            const etherAmount = await exchangeContractInstance.calculateEtherAmount(tokenToBuy);
+
             const invariantBefore = balanceExchangeContractBefore.sub(feesCollectedBefore).mul(balanceTokenVaultBefore);
 
             // Token Vault aprueba que Exchange Contract maneje los Tokens
@@ -229,15 +227,20 @@ describe("Exchange tests", () => {
             }
 
             const account3BalanceAfter = await contractInstance.balanceOf(account3.address);
+            const account3BalanceEthersAfter =  await provider.getBalance(account3.address); 
             const balanceTokenVaultAfter = await contractInstance.balanceOf(tokenVault.address);
             const balanceExchangeContractAfter =  await provider.getBalance(exchangeContractInstance.address); 
             const feesCollectedAfter = await exchangeContractInstance.feesCollected();
+            const feesTransaction = feesCollectedAfter.sub(feesCollectedBefore);
+            const pricePerTransactions = tx_result.gasUsed.mul(tx_result.effectiveGasPrice);
             const invariantAfter = balanceExchangeContractAfter.sub(feesCollectedAfter).mul(balanceTokenVaultAfter);
 
             //console.log("INVARIANT BEFORE BUY TOKENS", invariantBefore);
             //console.log("INVARIANT AFTER BUY TOKENS", invariantAfter);
             expect(parseInt(account3BalanceAfter)).to.be.equals(parseInt(account3BalanceBefore) + parseInt(ethers.utils.parseEther("7")));
             expect(parseInt(balanceTokenVaultAfter)).to.be.equals(parseInt(balanceTokenVaultBefore) - parseInt(ethers.utils.parseEther("7")));
+            expect(balanceExchangeContractBefore.add(feesTransaction).add(etherAmount)).to.be.equals(balanceExchangeContractAfter);
+            expect((account3BalanceEthersBefore.sub(feesTransaction)).sub(etherAmount).sub(pricePerTransactions)).to.be.equals(account3BalanceEthersAfter);
            // expect(invariantBefore).to.be.equals(invariantAfter);
           
         });
@@ -343,17 +346,12 @@ describe("Exchange tests", () => {
             if(tx_result.confirmations < 0 || tx_result === undefined) {
                 throw new Error("Transaction failed");
             }
-           // console.log("PRECIO TRAN", tx_result.gasUsed.mul(tx_result.effectiveGasPrice));
 
             const tx2 = await exchangeContractInstance.deposit({value:amountEther});
             tx_result2 = await provider.waitForTransaction(tx2.hash, confirmations_number);
             if(tx_result2.confirmations < 0 || tx_result2 === undefined) {
                 throw new Error("Transaction failed");
             }
-            //console.log(tx_result2.gasUsed.mul(tx_result2.effectiveGasPrice));
-            //const effGasPrice = tx2.effectiveGasPrice;
-            //const txGasUsed = tx2.gasUsed;
-           // const gasUsedETH = effGasPrice * txGasUsed;
 
            const balanceTokensSignerAfter = await contractInstance.balanceOf(signer.address);
            const balanceTokensVaultAfter = await contractInstance.balanceOf(tokenVault2.address);
@@ -362,15 +360,11 @@ describe("Exchange tests", () => {
             const balanceEthersSignerAfter = await provider.getBalance(signer.address);
                
             expect(balanceEthersSignerAfter).to.be.equals(balanceEthersSignerBefore.sub(amountEther).sub(tx_result.gasUsed.mul(tx_result.effectiveGasPrice).add(tx_result2.gasUsed.mul(tx_result2.effectiveGasPrice))));
-            //console.log("DIFERENCIA:", balanceEthersSignerBefore.sub(amountEther).sub(balanceEthersSignerAfter));
-            //console.log("PRECIO TRAN2", tx_result2.gasUsed.mul(tx_result2.effectiveGasPrice));
-            //console.log("TOTAL COBRADO", tx_result.gasUsed.mul(tx_result.effectiveGasPrice).add(tx_result2.gasUsed.mul(tx_result2.effectiveGasPrice)) )
             expect(balanceEthersExchangeContractAfter).to.be.equals(balanceEthersExchangeContractBefore.add(amountEther));
         
             expect(parseInt(balanceTokensSignerAfter)).to.be.lessThanOrEqual(parseInt(balanceTokensSignerBefore));
             expect(parseInt(balanceTokensVaultAfter)).to.be.greaterThanOrEqual(parseInt(balanceTokensVaultBefore));
             expect(balanceTokensSignerBefore.add(balanceTokensVaultBefore)).to.be.equals(balanceTokensSignerAfter.add(balanceTokensVaultAfter));
-            //expect(parseInt(balanceExchangeContractAfter.add(balanceSignerAfter))).to.be.equals(parseInt(balanceExchangeContractBefore.add(balanceSignerBefore)));
                 
             }); 
         }); 
