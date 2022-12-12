@@ -406,7 +406,7 @@ describe("Exchange tests", () => {
 
             it("Try Withdraw Fees OK", async () => {
                 const tokenAmount = await contractInstance.balanceOf(signer.address);
-                const newFEE = ethers.utils.parseEther("2");
+                const newFEE = ethers.utils.parseEther("40");
             
                 const tx4 = await exchangeContractInstance.setFeePercentage(newFEE);
                 tx_result4 = await provider.waitForTransaction(tx4.hash, confirmations_number);

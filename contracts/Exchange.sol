@@ -248,7 +248,7 @@ contract Exchange {
         _isOwnerProtocol(msg.sender);
         uint256 feeAux = feesCollected;
         feesCollected = 0;
-        uint256 minFees = 5 * (10 ** uint256(16));  
+        uint256 minFees = 5 * (10 ** uint256(17));  
         if(feeAux < minFees)
         {
              revert("Insufficient amount of fees");
