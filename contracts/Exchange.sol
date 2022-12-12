@@ -177,18 +177,12 @@ contract Exchange {
         {
            revert("Invalid _amountToExchange value");
         }
-         _isInsuffientBalance(msg.sender, _amountTokenToExchage,erc20Ethereum);
+        _isInsuffientBalance(msg.sender, _amountTokenToExchage,erc20Ethereum);
         uint256 etherAmountToPay = calculateEthersToSellTokens(_amountTokenToExchage);
-        uint256 feeToCharge;
-        if(feePercentage < 1 ether){
-              feeToCharge = (etherAmountToPay * feePercentage) / 1 ether; 
-        }
-        else
-        {
-             feeToCharge = ((etherAmountToPay * feePercentage) / _convertValueWithDecimals(100)); 
-        }
         
-        if((address(this).balance - feesCollected)  < (etherAmountToPay- feeToCharge))
+        uint256 feeToCharge = (etherAmountToPay * feePercentage) / 1 ether; 
+       
+        if((address(this).balance - feesCollected)  < (etherAmountToPay - feeToCharge))
         {
             revert("Insufficient balance");
         }
@@ -210,7 +204,6 @@ contract Exchange {
      */
     function setFeePercentage(uint256 _feePercentage) external{
          // Checks
-        
         if (_feePercentage == 0) 
         {
            revert("Invalid _feePercentage value");
@@ -218,7 +211,7 @@ contract Exchange {
          _isOwnerProtocol(msg.sender);
 
         // Effects
-        feePercentage = _feePercentage;
+        feePercentage = (_feePercentage / 100);
     }
 
     /*

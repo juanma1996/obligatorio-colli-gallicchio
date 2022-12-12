@@ -383,16 +383,14 @@ describe("Exchange tests", () => {
             }); 
 
             it("Try Set FEE Percentage OK", async () => {
-                const newFEE = ethers.utils.parseEther("1");
-
+                const newFEE = ethers.utils.parseEther("2");
                 const tx = await exchangeContractInstance.setFeePercentage(newFEE);
                 tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
                 if(tx_result.confirmations < 0 || tx_result === undefined) {
                     throw new Error("Transaction failed");
                 }
-                
                 const feeSET = await exchangeContractInstance.feePercentage();
-                expect(feeSET).to.be.equals(newFEE);
+                expect(feeSET).to.be.equals(newFEE.div(100));
             }); 
         });
 
