@@ -12,6 +12,16 @@ const initialize = () => {
     const getAccountsButton = document.getElementById('getAccounts');
     const getAccountsResult = document.getElementById('getAccountsResult');
 
+    //Ethereum Bridge Contract Section
+    const contractAddressEthereum = document.getElementById('ethereumBridgeAddress');
+    const transferToPolygonButton = document.getElementById('btnTransferToPolygon');
+    const unstakeButton = document.getElementById('btnUnstake');
+
+    //Polygon Bridge Contract Section
+    const contractAddressPolygon = document.getElementById('polygonBridgeAddress');
+    const mintToButton = document.getElementById('btnMintTo');
+    const transferToEthereumButton = document.getElementById('btnTransferToEthereum');
+
     let accounts
     let accountButtonsInitialized = false
 
@@ -32,16 +42,34 @@ const initialize = () => {
             onboardButton.innerText = 'Click here to install MetaMask!'
             onboardButton.onclick = onClickInstall
             onboardButton.disabled = false
+            contractAddressEthereum.disabled = true;
+            transferToPolygonButton.disabled = true;
+            unstakeButton.disabled = true;
+            contractAddressPolygon.disabled = true;
+            mintToButton.disabled = true;
+            transferToEthereumButton.disabled = true;
         } else if (isMetaMaskConnected()) {
             onboardButton.innerText = 'Connected'
             onboardButton.disabled = true
             if (onboarding) {
                 onboarding.stopOnboarding()
             }
+            contractAddressEthereum.disabled = false;
+            transferToPolygonButton.disabled = false;
+            unstakeButton.disabled = false;
+            contractAddressPolygon.disabled = false;
+            mintToButton.disabled = false;
+            transferToEthereumButton.disabled = false;
         } else {
             onboardButton.innerText = 'Connect'
             onboardButton.onclick = onClickConnect
             onboardButton.disabled = false
+            contractAddressEthereum.disabled = true;
+            transferToPolygonButton.disabled = true;
+            unstakeButton.disabled = true;
+            contractAddressPolygon.disabled = true;
+            mintToButton.disabled = true;
+            transferToEthereumButton.disabled = true;
         }
     }
 
@@ -52,8 +80,6 @@ const initialize = () => {
         //On this object we have startOnboarding which will start the onboarding process for our end user
         onboarding.startOnboarding();
     };
-
-
 
     const onClickConnect = async () => {
         try {
@@ -126,13 +152,26 @@ const initialize = () => {
     async function newAccountsUpdateFunction() {
         try {
             const newAccounts = await ethereum.request({
-              method: 'eth_accounts',
+                method: 'eth_accounts',
             })
             handleNewAccounts(newAccounts)
-          } catch (err) {
+        } catch (err) {
             console.error('Error on init when getting accounts', err)
-          }
+        }
     }
+
+    transferToPolygonButton.addEventListener('click', async () => {
+        polygonBridgeContractStatus.innerHTML = 'Transfer initiated'
+        contract.transferToPolygon(
+            {
+                _tokenAmount: '1'
+            },
+            (result) => {
+                console.log(result)
+                polygonBridgeContractStatus.innerHTML = 'Transfer completed'
+            },
+        )
+    });
 
     MetaMaskClientCheck();
     updateButtons();
@@ -141,13 +180,13 @@ const initialize = () => {
 
         ethereum.autoRefreshOnNetworkChange = false
         getNetworkAndChainId()
-    
+
         ethereum.on('chainChanged', handleNewChain)
         ethereum.on('networkChanged', handleNewNetwork)
         ethereum.on('accountsChanged', handleNewAccounts)
-    
+
         newAccountsUpdateFunction();
-      }
+    }
 };
 
 window.addEventListener('DOMContentLoaded', initialize);
