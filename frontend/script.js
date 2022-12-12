@@ -168,18 +168,18 @@ const initialize = () => {
         }
     }
 
-    transferToPolygonButton.addEventListener('click', async () => {
-        polygonBridgeContractStatus.innerHTML = 'Transfer initiated'
-        contract.transferToPolygon(
-            {
-                _tokenAmount: '1'
-            },
-            (result) => {
-                console.log(result)
-                polygonBridgeContractStatus.innerHTML = 'Transfer completed'
-            },
-        )
-    });
+    // transferToPolygonButton.addEventListener('click', async () => {
+    //     polygonBridgeContractStatus.innerHTML = 'Transfer initiated'
+    //     contract.transferToPolygon(
+    //         {
+    //             _tokenAmount: '1'
+    //         },
+    //         (result) => {
+    //             console.log(result)
+    //             polygonBridgeContractStatus.innerHTML = 'Transfer completed'
+    //         },
+    //     )
+    // });
 
     MetaMaskClientCheck();
     updateButtons();
@@ -228,7 +228,8 @@ const initialize = () => {
         try {
             web3 = new window.Web3(window.ethereum);
             ethereumBridgeABI = await readABIEthereumBridgeContract();
-            contractEthereumBridgeInstance = new web3.eth.Contract(ethereumBridgeABI, contractAddressEthereum);
+            contractEthereumBridgeInstance = await new web3.eth.Contract(ethereumBridgeABI, contractAddressEthereum.value);
+            console.log(contractEthereumBridgeInstance);
         } catch (err) {
             console.error('Error', err)
         }
@@ -238,7 +239,7 @@ const initialize = () => {
         try {
             web3 = new window.Web3(window.ethereum);
             polygonBridgeABI = await readABIPolygonBridgeContract();
-            contractPolygonBridgeInstance = new web3.eth.Contract(polygonBridgeABI, contractAddressPolygon);
+            contractPolygonBridgeInstance = await new web3.eth.Contract(polygonBridgeABI, contractAddressPolygon);
         } catch (err) {
             console.error('Error ', err)
         }
@@ -263,6 +264,21 @@ const initialize = () => {
             polygonBridgeContractStatus.innerHTML = 'Error on instanciating'
         }
     });
+
+    transferToPolygonButton.addEventListener('click', async () => {
+        try {
+            ethereumBridgeContractStatus.innerHTML = 'Initi transfer';
+            const tx = await contractEthereumBridgeInstance.methods.erc20Contract().call();
+            console.log(tx);
+            const tx1 = await contractEthereumBridgeInstance.methods.transferToPolygon(10)
+            .send({from: window.ethereum.selectedAddress});
+            ethereumBridgeContractStatus.innerHTML = 'Transfer complete';
+            console.log(tx1);
+        } catch (err) {
+            ethereumBridgeContractStatus.innerHTML = 'Error on transfer' + err.message
+        }
+    });
+    
 };
 
 window.addEventListener('DOMContentLoaded', initialize);
