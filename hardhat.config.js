@@ -2,7 +2,6 @@ require('dotenv').config();
 require('@nomiclabs/hardhat-ethers');
 require('solidity-coverage')
 require('hardhat-contract-sizer');
-require("@nomiclabs/hardhat-ganache");
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -20,10 +19,7 @@ module.exports = {
       chainId: 1337,
       url: "http://127.0.0.1:7545",
       from: process.env.GANACHE_ACCOUNT,
-      accounts: [
-        '0540e5f2da553da8e4b4e5990503fafa74c07a772a646b5426b8f4cd8ee57aa6',
-        '6a92ef7a0227bab2e1bd29adcc116ef7054db1a658f25c7f8845ebf41f6da3ee',
-      ]
+      accounts: [process.env.GANACHE_PRIVATE_KEY, process.env.GANACHE_PRIVATE_KEY2, process.env.GANACHE_PRIVATE_KEY3, process.env.GANACHE_PRIVATE_KEY4, process.env.GANACHE_PRIVATE_KEY5, process.env.GANACHE_PRIVATE_KEY6, process.env.GANACHE_PRIVATE_KEY7]
     },
 /*
     goerli: {

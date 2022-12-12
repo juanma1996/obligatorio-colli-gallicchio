@@ -56,7 +56,7 @@ contract Exchange {
         owner = msg.sender;
         tokenVault = _tokenVault;
         erc20Ethereum = _erc20Ethereum;
-        invariant = (msg.value * (_tokenAmount + tokenVaultAmount)) / _getUnitDecimals();
+        invariant = (msg.value * (_tokenAmount + tokenVaultAmount)) /  1 ether;
 
         //Interactions
         transferFromTokenContract(msg.sender, _tokenVault, _tokenAmount, _erc20Ethereum);
@@ -70,7 +70,7 @@ contract Exchange {
          // Effects
         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
         uint256 balanceOfContract = address(this).balance; 
-        uint256 result = tokenAmountOfTokenVault - ((invariant * _getUnitDecimals()) / ((balanceOfContract - feesCollected + (1 ether)))); 
+        uint256 result = tokenAmountOfTokenVault - ((invariant *  1 ether) / ((balanceOfContract - feesCollected + (1 ether)))); 
        
         return result;
     }
@@ -83,7 +83,7 @@ contract Exchange {
          // Effects
         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
         uint256 balanceOfContract = address(this).balance;
-        uint256 result = tokenAmountOfTokenVault - ((invariant * _getUnitDecimals()) / ((balanceOfContract - feesCollected))); 
+        uint256 result = tokenAmountOfTokenVault - ((invariant *  1 ether) / ((balanceOfContract - feesCollected))); 
         return result;
     }
 
@@ -95,7 +95,7 @@ contract Exchange {
          // Effects
         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
         uint256 balanceOfContract = address(this).balance; 
-        uint256 result =  (balanceOfContract  - feesCollected) - ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault + _tokenAmount) ); 
+        uint256 result =  (balanceOfContract  - feesCollected) - ((invariant *  1 ether) / (tokenAmountOfTokenVault + _tokenAmount) ); 
         
         return result;
     } 
@@ -115,7 +115,7 @@ contract Exchange {
          // Effects
         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
         uint256 balanceOfContract = address(this).balance; 
-        uint256 result =  ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault - _tokenAmount) ) - (balanceOfContract  - feesCollected); 
+        uint256 result =  ((invariant *  1 ether) / (tokenAmountOfTokenVault - _tokenAmount) ) - (balanceOfContract  - feesCollected); 
         return result;
     }
 
@@ -127,7 +127,7 @@ contract Exchange {
          // Effects
         uint256 tokenAmountOfTokenVault = balanceOfTokenContract(tokenVault, erc20Ethereum);
         uint256 balanceOfContract = address(this).balance; 
-        uint256 result =  ((invariant * _getUnitDecimals()) / (tokenAmountOfTokenVault - _tokenAmount) ) - (balanceOfContract  - feesCollected - _ethersOfTransaction); 
+        uint256 result =  ((invariant * 1 ether) / (tokenAmountOfTokenVault - _tokenAmount) ) - (balanceOfContract  - feesCollected - _ethersOfTransaction); 
         
         return result;
     }
@@ -177,12 +177,10 @@ contract Exchange {
         {
            revert("Invalid _amountToExchange value");
         }
-        _isInsuffientBalance(msg.sender, _amountTokenToExchage,erc20Ethereum);
         uint256 etherAmountToPay = calculateEthersToSellTokens(_amountTokenToExchage);
         
         uint256 feeToCharge = (etherAmountToPay * feePercentage) / 1 ether; 
-       
-        if((address(this).balance - feesCollected)  < (etherAmountToPay - feeToCharge))
+        if(address(this).balance - feesCollected  < etherAmountToPay - feeToCharge)
         {
             revert("Insufficient balance");
         }
@@ -299,11 +297,6 @@ contract Exchange {
     // /// PRIVATE FUNCTIONS
     // /// ------------------------------------------------------------------------------------------------------------------------------------------
 
-    function _getUnitDecimals() private view returns(uint256)
-    {
-        return _convertValueWithDecimals(1);
-    }
-
     function _isOwnerProtocol(address _address) private view {
          if (owner != _address) {
              revert("Not authorized");
@@ -331,13 +324,6 @@ contract Exchange {
         {
              revert("Insufficient balance");
         }
-    }
-
-    function _convertValueWithDecimals(uint256 value) private view returns(uint256)
-    {
-        uint256 result = value * (10 ** decimalsToken);
-
-        return result;
     }
 
     function transferFromTokenContract(address _from, address _to, uint256 _value, address _erc20Ethereum) private  {
