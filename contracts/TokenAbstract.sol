@@ -34,6 +34,7 @@ abstract contract TokenAbstract {
      * @dev Throw if `_symbol` is empty. Message: "constructor - Invalid parameter: _symbol"
      * @param _name The name of the token
      * @param _symbol The symbol of the token
+     * @param _maxSupply The max supply value of the protocol
      */
      
     constructor(string memory _name, string memory _symbol, uint256 _maxSupply)

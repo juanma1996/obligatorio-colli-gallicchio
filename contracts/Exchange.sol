@@ -19,10 +19,13 @@ contract Exchange {
      * @notice Initialize the state of the contract
      * @dev Throw if `_tokenVault` is zero address. Message: "Invalid address _tokenVault"
      * @dev Throw if `_tokenVault` is a smart contract. Message: "_tokenVault cannot be a contract"
-     * @dev Throw if `_erc20Contract` is zero address. Message: "Invalid address _erc20Contract"
+     * @dev Throw if `_erc20Contract` is zero address. Message: "_erc20Contract cannot be zero address"
      * @dev Throw if `_erc20Contract` is not a smart contract. Message: "_erc20Contract is not a contract"
-     * @param _name The name of the token
-     * @param _symbol The symbol of the token
+     * @dev Throw if `_tokenAmount` is zero value. Message: "Invalid _tokenAmount value"
+     * @dev Throw if `_tokenAmount` bigger than _tokenVault balance. Message: "Insufficient tokens in the vault"
+     * @param _tokenVault The address of tokenVault to set
+     * @param _erc20Ethereum The address of ERC20 Ethereum Contract
+     * @param _tokenAmount The amount of Tokens to set in the tokenVault
      */
     constructor(address _tokenVault, address _erc20Ethereum , uint256 _tokenAmount) payable
     {
@@ -59,6 +62,9 @@ contract Exchange {
         transferFromTokenContract(msg.sender, _tokenVault, _tokenAmount, _erc20Ethereum);
     }
 
+    /*
+    * @notice It must return the amount of tokens that is obtained for an ether at the moment of the query.
+    */
     function getExchangeRate() external view returns (uint256)
     {
          // Effects
@@ -69,6 +75,9 @@ contract Exchange {
         return result;
     }
 
+    /*
+    * @notice It must return the amount of tokens that is obtained according to the balance value.
+    */
     function calculateTokensPerEthers() private view returns(uint256)
     {
          // Effects
@@ -78,6 +87,9 @@ contract Exchange {
         return result;
     }
 
+    /*
+    * @notice It must return the amount of ethers that is obtained for sell an amount ok tokens.
+    */
     function calculateEthersToSellTokens(uint256 _tokenAmount) private view returns(uint256)
     {
          // Effects
@@ -88,6 +100,11 @@ contract Exchange {
         return result;
     } 
 
+    /*
+     * @notice Return the amount of ethers needed to buy the amount of tokens
+     * @dev Throw if `_tokenVault` is zero address. Message: "Invalid _tokenAmount value"
+     * @param _tokenAmount. The amount of token to buy
+     */
     function calculateEtherAmount(uint256 _tokenAmount) external view returns(uint256)
     {
          // Checks
@@ -102,6 +119,9 @@ contract Exchange {
         return result;
     }
 
+    /*
+    * @notice It must return the amount of ethers that is obtained for buy an amount ok tokens.
+    */
     function calculateEthersToBuyTokens(uint256 _tokenAmount, uint256 _ethersOfTransaction) private view returns(uint256)
     {
          // Effects
@@ -112,6 +132,12 @@ contract Exchange {
         return result;
     }
 
+    /*
+     * @notice Buy of Tokens
+     * @dev Throw if ethers received is insufficient to buy amount of Tokens. Message: "Insufficient ethers"
+     * @dev Throw if `_amountToBuy` is zero value. Message: "Invalid _amountToBuy value"
+     * @param _amountTokenToBuy. The amount of token to buy
+     */
     function buyToken(uint256 _amountTokenToBuy) external payable{
          // Checks
         if (_amountTokenToBuy == 0) 
@@ -138,6 +164,12 @@ contract Exchange {
         transferFromTokenContract(tokenVault, msg.sender, _amountTokenToBuy, erc20Ethereum);
     }
 
+    /*
+     * @notice Buy of Ethers
+     * @dev Throw if Exchange contract not have sufficient balance. Message: "Insufficient balance"
+     * @dev Throw if `_amountTokenToExchage` is zero value. Message: "Invalid _amountToExchage value"
+     * @param _amountTokenToExchage. The amount of token to exchange for ethers.
+     */
     function buyEther(uint256 _amountTokenToExchage) external
     {
          // Checks
@@ -170,6 +202,12 @@ contract Exchange {
         transferFromTokenContract(msg.sender, tokenVault, _amountTokenToExchage, erc20Ethereum);
     }
 
+    /*
+     * @notice Establishes the percentage that is charged for each operation
+     * @dev Throw if msg.sender is not the owner of the protocol. Message: "Not authorized"
+     * @dev Throw if `_percentage` is zero value. Message: "Invalid _feePercentage value"
+     * @param _percentage. The percentage to set.
+     */
     function setFeePercentage(uint256 _feePercentage) external{
          // Checks
         
@@ -183,6 +221,12 @@ contract Exchange {
         feePercentage = _feePercentage;
     }
 
+    /*
+     * @notice Allow the owner of the protocol to increase the liquidity of the pool
+     * @dev Throw if msg.sender is not the owner of the protocol. Message: "Not authorized"
+     * @dev Throw if msg.value is zero value. Message: "No ethers deposited"
+
+     */
     function deposit() external payable
     {
          // Checks
@@ -191,13 +235,20 @@ contract Exchange {
            revert("No ethers deposited");
         }
          _isOwnerProtocol(msg.sender);
-         uint256 amountToExchange = calculateTokensPerEthers();
-        _isInsuffientBalance(msg.sender, amountToExchange, erc20Ethereum);
+         uint256 amountTokensToExchange = calculateTokensPerEthers();
+        _isInsuffientBalance(msg.sender, amountTokensToExchange, erc20Ethereum);
+         uint256 tokenVaultBalanceBefore = balanceOfTokenContract(tokenVault, erc20Ethereum);
+        invariant = ( (tokenVaultBalanceBefore + amountTokensToExchange) * (address(this).balance - feesCollected)) / 1 ether;
 
         //Interactions
-         transferFromTokenContract(msg.sender, tokenVault, amountToExchange, erc20Ethereum);
+         transferFromTokenContract(msg.sender, tokenVault, amountTokensToExchange, erc20Ethereum);
     }
 
+    /*
+     * @notice Allow only the owner of the protocol to withdraw the profits obtained for the fees
+     * @dev Throw if The minimum withdrawal amount must be 0.5 ethers. Message: "Not authorized"
+     * @dev Throw if `_percentage` is zero value. Message: "Insufficient amount of fees"
+     */
     function withdrawFeesAmount() external
     {
         // Checks
@@ -214,6 +265,15 @@ contract Exchange {
         payable(msg.sender).transfer(feeAux);
     }
 
+    /*
+     * @notice Sets the address of the account from which the tokens will be obtained to make the exchanges.
+     * @dev Throw if msg.sender is not the owner of the protocol. Message: "Not authorized"
+     * @dev Throw if `_tokenVault` is zero address. Message: "Invalid address _tokenVault"
+     * @dev Throw if `_tokenVault` is address of smart contract. Message: "_tokenVault cannot be a contract"
+     * @dev Throw if `_tokenVault` balance is zero value. Message: "_tokenVault has no balance"
+     * @dev Throw if exchange contract not have authorization to operate Tokens of `_tokenVault`. Message: "Invalid tokenVault address"
+     * @param _tokenVault. The address to set.
+     */
     function setTokenVault(address _tokenVault) external{
 
         // Checks

@@ -25,6 +25,13 @@ abstract contract BridgeAbstract {
         return _erc20Contract;
     }
 
+    /*
+     * @notice Add an address to black list
+     * @dev Throw if `_invalidAddress` is zero address. Message: "_invalidAddress cannot be zero address"
+     * @dev Throw if `_invalidAddress` is the address of owner. Message: "Invalid address _invalidAddress"
+     * @dev Throw if `_invalidAddress` is already in the list. Message: "Address already in the list"
+     * @param _invalidAddress. The address to add to the list.
+     */
     function addAddressToBlackList(address _invalidAddress) public virtual{
         _isZeroAddress(_invalidAddress, '_invalidAddress');
         if (_owner == _invalidAddress) {
@@ -34,6 +41,12 @@ abstract contract BridgeAbstract {
         _blacklistAddress[_invalidAddress] = true;
     }
 
+     /*
+     * @notice Add an address to black list
+     * @dev Throw if `_invalidAddress` is zero address. Message: "Invalid address _invalidAddress"
+     * @dev Throw if `_invalidAddress` is not yet in the list. Message: "Address not found"
+     * @param _invalidAddress. The address to remove from the list.
+     */
     function removeAddressFromBlackList(address _invalidAddress) public virtual{
         if (_invalidAddress == address(0)) {
             revert("Invalid address _invalidAddress");

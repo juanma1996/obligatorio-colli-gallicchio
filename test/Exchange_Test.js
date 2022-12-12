@@ -358,14 +358,17 @@ describe("Exchange tests", () => {
 
             const balanceEthersExchangeContractAfter = await provider.getBalance(exchangeContractInstance.address);
             const balanceEthersSignerAfter = await provider.getBalance(signer.address);
-               
+            const invariantAfter = await exchangeContractInstance.invariant();
+            const feesCollected = await exchangeContractInstance.feesCollected();
+           
             expect(balanceEthersSignerAfter).to.be.equals(balanceEthersSignerBefore.sub(amountEther).sub(tx_result.gasUsed.mul(tx_result.effectiveGasPrice).add(tx_result2.gasUsed.mul(tx_result2.effectiveGasPrice))));
             expect(balanceEthersExchangeContractAfter).to.be.equals(balanceEthersExchangeContractBefore.add(amountEther));
         
             expect(parseInt(balanceTokensSignerAfter)).to.be.lessThanOrEqual(parseInt(balanceTokensSignerBefore));
             expect(parseInt(balanceTokensVaultAfter)).to.be.greaterThanOrEqual(parseInt(balanceTokensVaultBefore));
             expect(balanceTokensSignerBefore.add(balanceTokensVaultBefore)).to.be.equals(balanceTokensSignerAfter.add(balanceTokensVaultAfter));
-                
+
+            expect((balanceTokensVaultAfter.mul(balanceEthersExchangeContractAfter.sub(feesCollected))).div(amountEther)).to.be.equals(invariantAfter);
             }); 
         }); 
 

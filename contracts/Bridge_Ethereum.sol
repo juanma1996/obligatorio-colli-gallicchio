@@ -14,6 +14,11 @@ contract Bridge_Ethereum is BridgeAbstract
     /// STATE MAPPINGS
     mapping(address => uint256) public tokenStaking;
 
+    /*
+     * @notice Initialize the state of the contract
+     * @dev Throw if `erc20Contract` is not a smart contract. Message: "erc20Contract is not a contract"
+     * @param erc20Ethereum The address of ERC20 Ethereum Contract
+     */
     constructor(address erc20Conctract) BridgeAbstract(){
         // Checks
         if (erc20Conctract == address(0)) {
@@ -24,6 +29,14 @@ contract Bridge_Ethereum is BridgeAbstract
         _erc20Contract = erc20Conctract;
     }
 
+    /*
+     * @notice Transfer ethers from Ethereum to Polygon
+     * @dev Throw if `_tokenAmount` is bigger than max supply value. Message: "_tokenAmount exceeds max supply"
+     * @dev Throw if `_tokenAmount` is zero value. Message: "_tokenAmount must be greater than zero"
+     * @dev Throw if `msg.sender` is in the black list. Message: "Invalid sender"
+     * @dev Throw if `msg.sender` have not sufficient balance of tokens. Message: "Insufficient balance"
+     * @param _tokenAmount. The amount of token to transfer to Polygon.
+     */
     function transferToPolygon(uint256 _tokenAmount) external
     {   
         // Checks
@@ -51,29 +64,40 @@ contract Bridge_Ethereum is BridgeAbstract
        
     }
 
-    function unStake(address ownerAddress, uint256 _tokenAmount) external
+    /*
+     * @notice Unstake tokens
+     * @dev Throw if msg.sender is not the owner of the protocol. Message: "Not authorized"
+     * @dev Throw if `_owner` is zero address. Message: "_owner cannot be zero address"
+     * @dev Throw if `_owner` is in the black list. Message: "_owner address is in blacklist"
+     * @dev Throw if `_owner` have not tokens in stake. Message: "_owner address has no stake"
+     * @dev Throw if `_tokenAmount` is zero value. Message: "_tokenAmount must be greater than zero"
+     * @dev Throw if `_tokenAmount` is bigger that amount ok tokens in stake. Message: "“_tokenAmount value exceed staking"
+     * @param _tokenAmount. The amount of token to transfer to Polygon.
+     * @param _owner. The address of owner of tokens.
+     */
+    function unStake(address _owner, uint256 _tokenAmount) external
     {
         // Checks
-        _isZeroAddress(ownerAddress, '_owner');
+        _isZeroAddress(_owner, '_owner');
         _isOwnerProtocol(msg.sender);
         
-        if (_blacklistAddress[ownerAddress]) {
+        if (_blacklistAddress[_owner]) {
             revert("_owner address is in blacklist");
         }
         _isZeroValue(_tokenAmount, '_tokenAmount');
-        if (tokenStaking[ownerAddress] == 0){
+        if (tokenStaking[_owner] == 0){
             revert("_owner address has no stake");
         }
 
-        if (tokenStaking[ownerAddress] < _tokenAmount){
+        if (tokenStaking[_owner] < _tokenAmount){
             revert("_tokenAmount value exceed staking");
         }
        
        // Efects
-        tokenStaking[ownerAddress] -= _tokenAmount;
+        tokenStaking[_owner] -= _tokenAmount;
 
         // Interactions 
-        transferTokenContract(ownerAddress, _tokenAmount, erc20Contract());
+        transferTokenContract(_owner, _tokenAmount, erc20Contract());
     }
 
     // /// ------------------------------------------------------------------------------------------------------------------------------------------

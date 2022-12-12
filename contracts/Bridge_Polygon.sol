@@ -16,6 +16,12 @@ contract Bridge_Polygon is BridgeAbstract
     /// @dev Trigger with the `to` address and token amount
     event MintOrder(address indexed _to, uint256 _tokenAmount);
 
+    /*
+     * @notice Initialize the state of the contract
+     * @dev Throw if `erc20Polygon` is not a smart contract. Message: "_erc20Contract is not a contract"
+     * @dev Throw if `erc20Polygon` is zero address. Message: "Invalid address _erc20Contract"
+     * @param erc20Ethereum The address of ERC20 Ethereum Contract
+     */
     constructor(address erc20Polygon) BridgeAbstract(){
          // Checks
          if (erc20Polygon == address(0)) {
@@ -29,6 +35,16 @@ contract Bridge_Polygon is BridgeAbstract
         _erc20Contract = erc20Polygon;
     }
     
+    /*
+     * @notice Mint tokens in ERC20 of Polygon
+     * @dev Throw if msg.sender is not the owner of the protocol. Message: "Not authorized"
+     * @dev Throw if `_to` is zero address. Message: "_to cannot be zero address"
+     * @dev Throw if `_to` is in the black list. Message: "_to address is in blacklist"
+     * @dev Throw if `_tokenAmount` is zero value. Message: "_tokenAmount must be greater than zero"
+     * @dev Throw if `_tokenAmount` is bigger than max supply value. Message: "_tokenAmount exceeds max supply"
+     * @param _tokenAmount. The amount of token to Mint.
+     * @param _to. The address of owner of tokens.
+     */
     function mintTo(address _to, uint256 _tokenAmount) external
     {
          // Checks
@@ -45,13 +61,15 @@ contract Bridge_Polygon is BridgeAbstract
         emit MintOrder(_to, _tokenAmount);
     }
 
+     /*
+     * @notice Transfer ethers from Polygon to Ethereum 
+     * @dev Throw if `_tokenAmount` is bigger than the balance of tokens of the sender. Message: "_tokenAmount value exceed balance"
+     * @dev Throw if `_tokenAmount` is zero value. Message: "_tokenAmount must be greater than zero"
+     * @param _tokenAmount. The amount of token to transfer to Ethereum.
+     */
     function transferToEthereum(uint256 _tokenAmount) external
     {
         // Checks
-        if (_blacklistAddress[msg.sender]) {
-            revert("_recipient address is in blacklist");
-        }
-        _isZeroAddress(msg.sender, '_recipient');
         _isZeroValue(_tokenAmount, '_tokenAmount');
        
         uint256 tokenRecipientAmount = balanceOfTokenContract(msg.sender, erc20Contract());
