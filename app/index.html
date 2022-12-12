@@ -66,14 +66,18 @@
 
               <div class="form-group">
                 <label>Contract address</label>
-                <input class="form-control" type="text" id="ethereumBridgeAddress" >
+                <input class="form-control" type="text" id="ethereumBridgeAddress">
               </div>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3"
+                id="btnInstanciateEthereumBridgeContract">Instanciate</button>
 
               <p class="info-text alert alert-secondary">
                 Contract Status: <span id="ethereumBridgeContractStatus">Not clicked</span>
               </p>
 
-              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnTransferToPolygon">Transfer to polygon</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnTransferToPolygon">Transfer to
+                polygon</button>
               <button class="btn btn-primary btn-lg btn-block mb-3" id="btnUnstake">Unstake</button>
             </div>
           </div>
@@ -88,17 +92,11 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
 
-        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
-          <div class="card full-width">
-            <div class="card-body">
-              <h4 class="card-title">
-                Polygon bridge events
-              </h4>
-            </div>
-          </div>
-        </div>
-
+    <section>
+      <div class="row">
         <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
           <div class="card full-width">
             <div class="card-body">
@@ -108,24 +106,39 @@
 
               <div class="form-group">
                 <label>Contract address</label>
-                <input class="form-control" type="text" id="polygonBridgeAddress" >
+                <input class="form-control" type="text" id="polygonBridgeAddress">
               </div>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3"
+                id="btnInstanciatePolygonBridgeContract">Instanciate</button>
 
               <p class="info-text alert alert-secondary">
                 Contract Status: <span id="polygonBridgeContractStatus">Not clicked</span>
               </p>
 
               <button class="btn btn-primary btn-lg btn-block mb-3" id="btnMintTo">Mint to</button>
-              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnTransferToEthereum">Transfer to ethereum</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnTransferToEthereum">Transfer to
+                ethereum</button>
             </div>
           </div>
         </div>
+
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">
+                Polygon bridge events
+              </h4>
+            </div>
+          </div>
+        </div>       
       </div>
     </section>
   </main>
 
   <script src="node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js" defer></script>
   <script src="script.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 </body>
 
 </html>

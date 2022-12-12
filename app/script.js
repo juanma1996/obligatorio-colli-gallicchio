@@ -16,14 +16,22 @@ const initialize = () => {
     const contractAddressEthereum = document.getElementById('ethereumBridgeAddress');
     const transferToPolygonButton = document.getElementById('btnTransferToPolygon');
     const unstakeButton = document.getElementById('btnUnstake');
+    const instanciateEthereumBridgeContractButton = document.getElementById('btnInstanciateEthereumBridgeContract');
+
 
     //Polygon Bridge Contract Section
     const contractAddressPolygon = document.getElementById('polygonBridgeAddress');
     const mintToButton = document.getElementById('btnMintTo');
     const transferToEthereumButton = document.getElementById('btnTransferToEthereum');
+    const instanciatePolygonBridgeContractButton = document.getElementById('btnInstanciatePolygonBridgeContract');
 
     let accounts
     let accountButtonsInitialized = false
+    let contractEthereumBridgeInstance
+    let contractPolygonBridgeInstance
+    let polygonBridgeABI
+    let ethereumBridgeABI
+    let web3
 
     const isMetaMaskConnected = () => accounts && accounts.length > 0
 
@@ -187,6 +195,74 @@ const initialize = () => {
 
         newAccountsUpdateFunction();
     }
+
+    async function readABIPolygonBridgeContract() {
+        try {
+            return fetch('./contractsABI/ABIPolygonBridgeContract.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new FetchError(response);
+                }
+                return response.json();
+            });
+        } catch (err) {
+            console.error('Error', err)
+        }
+    }
+
+    async function readABIEthereumBridgeContract() {
+        try {
+            return fetch('./contractsABI/ABIEthereumBridgeContract.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new FetchError(response);
+                }
+                return response.json();
+            });
+        } catch (err) {
+            console.error('Error', err)
+        }
+    }
+
+    async function instanciateEthereumBridgeContract() {
+        try {
+            web3 = new window.Web3(window.ethereum);
+            ethereumBridgeABI = await readABIEthereumBridgeContract();
+            contractEthereumBridgeInstance = new web3.eth.Contract(ethereumBridgeABI, contractAddressEthereum);
+        } catch (err) {
+            console.error('Error', err)
+        }
+    }
+
+    async function instanciatePolygonBridgeContract() {
+        try {
+            web3 = new window.Web3(window.ethereum);
+            polygonBridgeABI = await readABIPolygonBridgeContract();
+            contractPolygonBridgeInstance = new web3.eth.Contract(polygonBridgeABI, contractAddressPolygon);
+        } catch (err) {
+            console.error('Error ', err)
+        }
+    }
+
+    instanciateEthereumBridgeContractButton.addEventListener('click', async () => {
+        try {
+            ethereumBridgeContractStatus.innerHTML = 'Initi instanciate'
+            await instanciateEthereumBridgeContract();
+            ethereumBridgeContractStatus.innerHTML = 'Instanciate complete'
+        } catch (err) {
+            ethereumBridgeContractStatus.innerHTML = 'Error on instanciating'
+        }
+    });
+
+    instanciatePolygonBridgeContractButton.addEventListener('click', async () => {
+        try {
+            polygonBridgeContractStatus.innerHTML = 'Initi instanciate'
+            await instanciatePolygonBridgeContract();
+            polygonBridgeContractStatus.innerHTML = 'Instanciate complete'
+        } catch (err) {
+            polygonBridgeContractStatus.innerHTML = 'Error on instanciating'
+        }
+    });
 };
 
 window.addEventListener('DOMContentLoaded', initialize);
