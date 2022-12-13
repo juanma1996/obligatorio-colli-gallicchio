@@ -29,6 +29,8 @@
 
 6. Configure el archivo `hardhat.config.js` según sus necesidades
 
+7. Para correr el frontend se debe ejecutar: 'yarn run serve' dentro de la carpeta frontend. En caso de un error relacionado a yarn se debe ejecutar: 'npm install yarn'
+
 ## Task
 
 Se desea crear un ecosistema financiero basado en blockchain, donde los usuarios puedan comprar y vender token fungibles a cambio de ethers e intercambiarlos entre las redes blockchain de Ethereum y Polygon.
