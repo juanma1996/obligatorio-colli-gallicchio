@@ -68,9 +68,12 @@ Ejecute sus tests con el comando: `npx hardhat test`.
 
   ## DIAGRAMA ##
 
+![WhatsApp Image 2022-12-13 at 17 31 16](https://user-images.githubusercontent.com/102038998/207439035-445d6774-f969-44bc-85d2-7a5137d2125c.jpeg)
 
-  ## ITERACIÓN ##  
+  ## INTERACCIÓN ##  
 
+
+![WhatsApp Image 2022-12-13 at 17 31 38](https://user-images.githubusercontent.com/102038998/207439053-e370e3ee-9705-437b-9eff-b30f31e30b8b.jpeg)
 
 ## Deploy en GOERLI
 
