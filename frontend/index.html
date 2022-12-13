@@ -80,6 +80,10 @@
                 polygon</button>
               <button class="btn btn-primary btn-lg btn-block mb-3" id="btnUnstake">Unstake</button>
               <button class="btn btn-primary btn-lg btn-block mb-3" id="btnTokenStaking">Token staking</button>
+              <div class="form-group">
+                <label>Address to</label>
+                <input class="form-control" type="text" id="addressToEthereumBridge">
+              </div>
             </div>
           </div>
         </div>
@@ -90,6 +94,8 @@
               <h4 class="card-title">
                 Ethereum bridge events
               </h4>
+
+              <span id="ethereumEvents">Nothing happened yet</span>
             </div>
           </div>
         </div>
@@ -115,6 +121,15 @@
 
               <button class="btn btn-primary btn-lg btn-block mb-3" id="btnApproveERC20Eth">Approve</button>
               <button class="btn btn-primary btn-lg btn-block mb-3" id="btnTransferERC20Eth">Transfer</button>
+
+              <div class="form-group">
+                <label>Address to</label>
+                <input class="form-control" type="text" id="addressToErc20Ethereum">
+              </div>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnBalanceERC20Ethereum">Balance of</button>
+              <p class="info-text alert alert-secondary">Balance of: <span id="erc20EthereumBalanceOf">Not clicked</span>
+              </p>
             </div>
           </div>
         </div>
@@ -155,9 +170,45 @@
               <h4 class="card-title">
                 Polygon bridge events
               </h4>
+
+              <span id="polygonEvents">Nothing happened yet</span>
             </div>
           </div>
-        </div>       
+        </div>
+
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">
+                ERC-20 Polygon Contract
+              </h4>
+
+              <div class="form-group">
+                <label>Contract address</label>
+                <input class="form-control" type="text" id="erc20PolygonAddress">
+              </div>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3"
+                id="btnInstanciateERC20PolygonContract">Instanciate</button>
+
+              <p class="info-text alert alert-secondary">
+                Contract Status: <span id="erc20PolygonContractStatus">Not clicked</span>
+              </p>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnApproveERC20Polygon">Approve</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnTransferERC20Polygon">Transfer</button>
+
+              <div class="form-group">
+                <label>Address to</label>
+                <input class="form-control" type="text" id="addressToErc20Polygon">
+              </div>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnBalanceERC20Polygon">Balance of</button>
+              <p class="info-text alert alert-secondary">Balance of: <span id="erc20PolygonBalanceOf">Not clicked</span>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>

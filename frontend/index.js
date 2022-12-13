@@ -18,29 +18,46 @@ const initialize = () => {
     const unstakeButton = document.getElementById('btnUnstake');
     const tokenStakingButton = document.getElementById('btnTokenStaking');
     const instanciateEthereumBridgeContractButton = document.getElementById('btnInstanciateEthereumBridgeContract');
+    const addressToEthereumBridge = document.getElementById('addressToEthereumBridge');
+    const ethereumEvents = document.getElementById('ethereumEvents');
 
     //ERC-20 Ethereum Contract Section
     const contractAddressERC20Ethereum = document.getElementById('erc20EthereumAddress');
     const approveERC20EthButton = document.getElementById('btnApproveERC20Eth');
     const transferERC20ETHButton = document.getElementById('btnTransferERC20Eth');
     const instanciateERC20EthereumContractButton = document.getElementById('btnInstanciateERC20EthereumContract');
-    erc20EthereumContractStatus
+    const addressToERC20Ethereum = document.getElementById('addressToErc20Ethereum');
+    const balanceERC20EthereumButton = document.getElementById('btnBalanceERC20Ethereum');
+    const erc20EthereumBalanceOf = document.getElementById('erc20EthereumBalanceOf');
+    
+
+
+    //ERC-20 Polygon Contract Section
+    const contractAddressERC20Polygon = document.getElementById('erc20PolygonAddress');
+    const approveERC20PolygonButton = document.getElementById('btnApproveERC20Polygon');
+    const transferERC20PolygonButton = document.getElementById('btnTransferERC20Polygon');
+    const instanciateERC20PolygonContractButton = document.getElementById('btnInstanciateERC20PolygonContract');
+    const addressToERC20Polygon = document.getElementById('addressToErc20Polygon');
+    const balanceERC20PolygonButton = document.getElementById('btnBalanceERC20Polygon');
+    const erc20PolygonBalanceOf = document.getElementById('erc20PolygonBalanceOf');
 
     //Polygon Bridge Contract Section
     const contractAddressPolygon = document.getElementById('polygonBridgeAddress');
     const mintToButton = document.getElementById('btnMintTo');
     const transferToEthereumButton = document.getElementById('btnTransferToEthereum');
     const instanciatePolygonBridgeContractButton = document.getElementById('btnInstanciatePolygonBridgeContract');
+    const polygonEvents = document.getElementById('polygonEvents');
 
     let accounts
-    let accountButtonsInitialized = false
     let contractEthereumBridgeInstance
     let contractERC20EthereumInstance
     let contractPolygonBridgeInstance
+    let contractERC20PolygonInstance
     let polygonBridgeABI
     let ethereumBridgeABI
+    let polygonERC20ABI
+    let ethereumERC20ABI
     let web3
-
     const isMetaMaskConnected = () => accounts && accounts.length > 0
 
     //Created check function to see if the MetaMask extension is installed
@@ -176,19 +193,6 @@ const initialize = () => {
         }
     }
 
-    // transferToPolygonButton.addEventListener('click', async () => {
-    //     polygonBridgeContractStatus.innerHTML = 'Transfer initiated'
-    //     contract.transferToPolygon(
-    //         {
-    //             _tokenAmount: '1'
-    //         },
-    //         (result) => {
-    //             console.log(result)
-    //             polygonBridgeContractStatus.innerHTML = 'Transfer completed'
-    //         },
-    //     )
-    // });
-
     MetaMaskClientCheck();
     updateButtons();
 
@@ -211,12 +215,12 @@ const initialize = () => {
     async function readABIEthereumBridgeContract() {
         try {
             return fetch('./contractsABI/ABIEthereumBridgeContract.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new FetchError(response);
-                }
-                return response.json();
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new FetchError(response);
+                    }
+                    return response.json();
+                });
         } catch (err) {
             console.error('Error', err)
         }
@@ -227,11 +231,10 @@ const initialize = () => {
             web3 = new window.Web3(window.ethereum);
             ethereumBridgeABI = await readABIEthereumBridgeContract();
             contractEthereumBridgeInstance = await new web3.eth.Contract(ethereumBridgeABI, contractAddressEthereum.value);
-            console.log(contractEthereumBridgeInstance);
         } catch (err) {
             console.error('Error', err)
         }
-    }    
+    }
 
     instanciateEthereumBridgeContractButton.addEventListener('click', async () => {
         try {
@@ -246,10 +249,47 @@ const initialize = () => {
     transferToPolygonButton.addEventListener('click', async () => {
         try {
             ethereumBridgeContractStatus.innerHTML = 'Initi transfer';
-            const tx1 = await contractEthereumBridgeInstance.methods.transferToPolygon(10).send({from: window.ethereum.selectedAddress});
+            const tx1 = await contractEthereumBridgeInstance.methods.transferToPolygon(8).send({ from: window.ethereum.selectedAddress });
             ethereumBridgeContractStatus.innerHTML = 'Transfer complete' + tx1;
         } catch (err) {
             ethereumBridgeContractStatus.innerHTML = 'Error on transfer' + err.message
+        }
+    });
+
+    async function getEvents() {
+        let latest_block = await web3.eth.getBlockNumber();
+        let historical_block = latest_block - 10000; // you can also change the value to 'latest' if you have a upgraded rpc
+        const events = await contractPolygonBridgeInstance.getPastEvents(
+            'TransferToEthereum',
+            { fromBlock: historical_block, toBlock: 'latest' }
+        );
+        return await getTransferDetails(events);
+    };
+
+    async function getTransferDetails(data_events) {
+        let to = data_events[data_events.length - 1]['returnValues']['_to'];
+        let _tokenAmount = data_events[data_events.length - 1]['returnValues']['_tokenAmount'];
+        return { to, _tokenAmount };
+    };
+
+    unstakeButton.addEventListener('click', async () => {
+        try {
+            ethereumBridgeContractStatus.innerHTML = 'Initi unstake call';
+            let data = await getEvents();
+            const tx1 = await contractEthereumBridgeInstance.methods.unStake(data.to, data._tokenAmount).send({ from: window.ethereum.selectedAddress });
+            ethereumBridgeContractStatus.innerHTML = 'Unstake call complete. Result: ' + tx1;
+        } catch (err) {
+            ethereumBridgeContractStatus.innerHTML = 'Error on unstake call' + err.message
+        }
+    });
+
+    tokenStakingButton.addEventListener('click', async () => {
+        try {
+            ethereumBridgeContractStatus.innerHTML = 'Initi token staking call';
+            const tx1 = await contractEthereumBridgeInstance.methods.tokenStaking(addressToEthereumBridge.value).call();
+            ethereumBridgeContractStatus.innerHTML = 'Token staking call complete. Result: ' + tx1;
+        } catch (err) {
+            ethereumBridgeContractStatus.innerHTML = 'Error on token staking call' + err.message
         }
     });
 
@@ -260,12 +300,12 @@ const initialize = () => {
     async function readABIPolygonBridgeContract() {
         try {
             return fetch('./contractsABI/ABIPolygonBridgeContract.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new FetchError(response);
-                }
-                return response.json();
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new FetchError(response);
+                    }
+                    return response.json();
+                });
         } catch (err) {
             console.error('Error', err)
         }
@@ -275,12 +315,12 @@ const initialize = () => {
         try {
             web3 = new window.Web3(window.ethereum);
             polygonBridgeABI = await readABIPolygonBridgeContract();
-            contractPolygonBridgeInstance = await new web3.eth.Contract(polygonBridgeABI, contractAddressPolygon);
+            contractPolygonBridgeInstance = await new web3.eth.Contract(polygonBridgeABI, contractAddressPolygon.value);
         } catch (err) {
             console.error('Error ', err)
         }
     }
-    
+
     instanciatePolygonBridgeContractButton.addEventListener('click', async () => {
         try {
             polygonBridgeContractStatus.innerHTML = 'Initi instanciate'
@@ -291,47 +331,72 @@ const initialize = () => {
         }
     });
 
-    // tokenStakingButton.addEventListener('click', async () => {
-    //     try {
-    //         ethereumBridgeContractStatus.innerHTML = 'Initi transfer';
-    //         //transferir desde el signer 10 tokens al account 3
-    //         const tx = await newContractInstance.approve(ethereumBridgeContractInstance.address, transferAmount);
-    //         const tx1 = await contractEthereumBridgeInstance.methods.transferToPolygon(10).send({from: window.ethereum.selectedAddress});
-    //         ethereumBridgeContractStatus.innerHTML = 'Transfer complete' + tx;
-    //     } catch (err) {
-    //         ethereumBridgeContractStatus.innerHTML = 'Error on transfer' + err.message
-    //     }
-    // });
+    transferToEthereumButton.addEventListener('click', async () => {
+        try {
+            polygonBridgeContractStatus.innerHTML = 'Initi transfer to ethereum call';
+            const tx1 = await contractPolygonBridgeInstance.methods.transferToEthereum(10).send({ from: window.ethereum.selectedAddress });
+            polygonBridgeContractStatus.innerHTML = 'Transfer to ethereum call complete. Result: ' + tx1;
+        } catch (err) {
+            polygonBridgeContractStatus.innerHTML = 'Error on token staking call' + err.message
+        }
+    });
+
+    async function getEventsMint() {
+        let latest_block = await web3.eth.getBlockNumber();
+        let historical_block = latest_block - 10000; // you can also change the value to 'latest' if you have a upgraded rpc
+        console.log("latest: ", latest_block, "historical block: ", historical_block);
+        const events = await contractEthereumBridgeInstance.getPastEvents(
+            'TransferToPolygon',
+            { fromBlock: historical_block, toBlock: 'latest' }
+        );
+        return await getTransferDetailsMint(events);
+    };
+
+    async function getTransferDetailsMint(data_events) {
+        let _from = data_events[data_events.length - 1]['returnValues']['_from'];
+        let _tokenAmount = data_events[data_events.length - 1]['returnValues']['_tokenAmount'];
+        return { _from, _tokenAmount }
+    };
+
+    mintToButton.addEventListener('click', async () => {
+        try {
+            polygonBridgeContractStatus.innerHTML = 'Initi mint to call';
+            let data = await getEventsMint();
+            const tx1 = await contractPolygonBridgeInstance.methods.mintTo(data._from, data._tokenAmount).send({ from: window.ethereum.selectedAddress });
+            polygonBridgeContractStatus.innerHTML = 'Mint to call complete. Result: ' + tx1;
+        } catch (err) {
+            polygonBridgeContractStatus.innerHTML = 'Error on mint to call' + err.message
+        }
+    });
 
     /// --------------------------------------------------------------------------------------------------
-    /// ERC-20 buttons
+    /// ERC-20 Ethereum buttons
     /// --------------------------------------------------------------------------------------------------
 
     async function readABIERC20EthereumContract() {
         try {
             return fetch('./contractsABI/ABIERC20EthereumContract.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new FetchError(response);
-                }
-                return response.json();
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new FetchError(response);
+                    }
+                    return response.json();
+                });
         } catch (err) {
             console.error('Error', err)
         }
     }
-    
+
     async function instanciateERC20EthereumContract() {
         try {
             web3 = new window.Web3(window.ethereum);
             ethereumERC20ABI = await readABIERC20EthereumContract();
             contractERC20EthereumInstance = await new web3.eth.Contract(ethereumERC20ABI, contractAddressERC20Ethereum.value);
-            console.log(contractERC20EthereumInstance);
         } catch (err) {
             console.error('Error', err)
         }
     }
-  
+
     instanciateERC20EthereumContractButton.addEventListener('click', async () => {
         try {
             erc20EthereumContractStatus.innerHTML = 'Initi instanciate'
@@ -341,12 +406,12 @@ const initialize = () => {
             erc20EthereumContractStatus.innerHTML = 'Error on instanciating'
         }
     });
-    
+
     approveERC20EthButton.addEventListener('click', async () => {
         try {
             erc20EthereumContractStatus.innerHTML = 'Init approve';
-            const tx1 = await contractERC20EthereumInstance.methods.approve(window.ethereum.selectedAddress, 10).send({from: window.ethereum.selectedAddress});
-            erc20EthereumContractStatus.innerHTML = 'Approve complete' + tx;
+            const tx1 = await contractERC20EthereumInstance.methods.approve(addressToERC20Ethereum.value, 10).send({ from: window.ethereum.selectedAddress });
+            erc20EthereumContractStatus.innerHTML = 'Approve complete' + tx1;
         } catch (err) {
             erc20EthereumContractStatus.innerHTML = 'Error on approve' + err.message
         }
@@ -355,10 +420,90 @@ const initialize = () => {
     transferERC20ETHButton.addEventListener('click', async () => {
         try {
             erc20EthereumContractStatus.innerHTML = 'Init transfer';
-            const tx1 = await contractERC20EthereumInstance.methods.transfer(window.ethereum.selectedAddress, 10).send({from: window.ethereum.selectedAddress});
-            erc20EthereumContractStatus.innerHTML = 'Transfer complete' + tx;
+            const tx1 = await contractERC20EthereumInstance.methods.transfer(addressToERC20Ethereum.value, 10).send({ from: window.ethereum.selectedAddress });
+            erc20EthereumContractStatus.innerHTML = 'Transfer complete' + tx1;
         } catch (err) {
             erc20EthereumContractStatus.innerHTML = 'Error on transfer' + err.message
+        }
+    });
+
+    balanceERC20EthereumButton.addEventListener('click', async () => {
+        try {
+            erc20EthereumContractStatus.innerHTML = 'Init call balance of';
+            const tx1 = await contractERC20EthereumInstance.methods.balanceOf(addressToErc20Ethereum.value).call();
+            erc20EthereumBalanceOf.innerHTML = tx1;;
+            erc20EthereumContractStatus.innerHTML = 'Call balance of complete' + tx1;
+        } catch (err) {
+            erc20EthereumContractStatus.innerHTML = 'Error on call balance of' + err.message
+        }
+    });
+
+    /// --------------------------------------------------------------------------------------------------
+    /// ERC-20 Polygon buttons
+    /// --------------------------------------------------------------------------------------------------
+
+    async function readABIERC20PolygonContract() {
+        try {
+            return fetch('./contractsABI/ABIERC20PolygonContract.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new FetchError(response);
+                    }
+                    return response.json();
+                });
+        } catch (err) {
+            console.error('Error', err)
+        }
+    }
+
+    async function instanciateERC20PolygonContract() {
+        try {
+            web3 = new window.Web3(window.ethereum);
+            polygonERC20ABI = await readABIERC20PolygonContract();
+            contractERC20PolygonInstance = await new web3.eth.Contract(polygonERC20ABI, contractAddressERC20Polygon.value);
+        } catch (err) {
+            console.error('Error', err)
+        }
+    }
+
+    instanciateERC20PolygonContractButton.addEventListener('click', async () => {
+        try {
+            erc20PolygonContractStatus.innerHTML = 'Initi instanciate'
+            await instanciateERC20PolygonContract();
+            erc20PolygonContractStatus.innerHTML = 'Instanciate complete'
+        } catch (err) {
+            erc20PolygonContractStatus.innerHTML = 'Error on instanciating'
+        }
+    });
+
+    approveERC20PolygonButton.addEventListener('click', async () => {
+        try {
+            erc20PolygonContractStatus.innerHTML = 'Init approve';
+            const tx1 = await contractERC20PolygonInstance.methods.approve(addressToERC20Polygon.value, 10).send({ from: window.ethereum.selectedAddress });
+            erc20PolygonContractStatus.innerHTML = 'Approve complete' + tx1;
+        } catch (err) {
+            erc20PolygonContractStatus.innerHTML = 'Error on approve' + err.message
+        }
+    });
+
+    transferERC20PolygonButton.addEventListener('click', async () => {
+        try {
+            erc20PolygonContractStatus.innerHTML = 'Init transfer';
+            const tx1 = await contractERC20PolygonInstance.methods.transfer(addressToERC20Polygon.value, 10).send({ from: window.ethereum.selectedAddress });
+            erc20PolygonContractStatus.innerHTML = 'Transfer complete' + tx1;
+        } catch (err) {
+            erc20PolygonContractStatus.innerHTML = 'Error on transfer' + err.message
+        }
+    });
+
+    balanceERC20PolygonButton.addEventListener('click', async () => {
+        try {
+            erc20PolygonContractStatus.innerHTML = 'Init call balance of';
+            const tx1 = await contractERC20PolygonInstance.methods.balanceOf(addressToERC20Polygon.value).call();
+            erc20PolygonBalanceOf.innerHTML = tx1;
+            erc20PolygonContractStatus.innerHTML = 'Call balance of complete' + tx1;
+        } catch (err) {
+            erc20PolygonContractStatus.innerHTML = 'Error on call balance of' + err.message
         }
     });
 };
