@@ -16,6 +16,7 @@ const initialize = () => {
     const contractAddressEthereum = document.getElementById('ethereumBridgeAddress');
     const transferToPolygonButton = document.getElementById('btnTransferToPolygon');
     const unstakeButton = document.getElementById('btnUnstake');
+    const tokenStakingButton = document.getElementById('btnTokenStaking');
     const instanciateEthereumBridgeContractButton = document.getElementById('btnInstanciateEthereumBridgeContract');
 
 
@@ -279,6 +280,17 @@ const initialize = () => {
         }
     });
     
+    tokenStakingButton.addEventListener('click', async () => {
+        try {
+            ethereumBridgeContractStatus.innerHTML = 'Initi transfer';
+            const tx = await contractEthereumBridgeInstance.methods.tokenStaking(window.ethereum.selectedAddress).call();
+            // const tx1 = await contractEthereumBridgeInstance.methods.transferToPolygon(10)
+            // .send({from: window.ethereum.selectedAddress});
+            ethereumBridgeContractStatus.innerHTML = 'Transfer complete' + tx;
+        } catch (err) {
+            ethereumBridgeContractStatus.innerHTML = 'Error on transfer' + err.message
+        }
+    });
 };
 
 window.addEventListener('DOMContentLoaded', initialize);
