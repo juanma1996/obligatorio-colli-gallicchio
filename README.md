@@ -6,9 +6,9 @@
 1. Clonar el repositorio
 
 2. Complete sus datos:
-  * NUMERO DE ESTUDIANTE:
-  * NOMBRE DE ESTUDIANTE:
-  * ADDRESS DE SU CUENTA:
+  * NUMERO DE ESTUDIANTE: 136382
+  * NOMBRE DE ESTUDIANTE: CARLOS COLLI
+  * ADDRESS DE SU CUENTA: 
   * ADDRESS DEL CONTRATO:
 
 3. Installar hardhat `npm install hardhat --save-dev`
