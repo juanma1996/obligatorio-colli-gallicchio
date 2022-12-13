@@ -260,11 +260,11 @@ const initialize = () => {
         try {
             ethereumBridgeContractStatus.innerHTML = 'Initi transfer';
             const tx1 = await contractEthereumBridgeInstance.methods.transferToPolygon(amountBridgeEthereum.value).send({ from: window.ethereum.selectedAddress });
-            let information = 'transactionHash: ' + tx1.transactionHash;
-            information += 'blockHash ' + tx1.blockHash;
-            information += 'from: ' + tx1.from;
-            information += 'to: ' + tx1.to;
-            information += 'gasUsed: ' + tx1.gasUsed;
+            let information = '\ntransactionHash: ' + tx1.transactionHash;
+            information += '\nblockHash ' + tx1.blockHash;
+            information += '\nfrom: ' + tx1.from;
+            information += '\nto: ' + tx1.to;
+            information += '\ngasUsed: ' + tx1.gasUsed;
             ethereumEvents.innerHTML = information;
             ethereumBridgeContractStatus.innerHTML = 'Transfer complete';
         } catch (err) {
@@ -293,11 +293,11 @@ const initialize = () => {
             ethereumBridgeContractStatus.innerHTML = 'Initi unstake call';
             let data = await getEvents();
             const tx1 = await contractEthereumBridgeInstance.methods.unStake(data.to, data._tokenAmount).send({ from: window.ethereum.selectedAddress });
-            let information = 'transactionHash: ' + tx1.transactionHash;
-            information += 'blockHash ' + tx1.blockHash;
-            information += 'from: ' + tx1.from;
-            information += 'to: ' + tx1.to;
-            information += 'gasUsed: ' + tx1.gasUsed;
+            let information = '\ntransactionHash: ' + tx1.transactionHash;
+            information += '\nblockHash ' + tx1.blockHash;
+            information += '\nfrom: ' + tx1.from;
+            information += '\nto: ' + tx1.to;
+            information += '\ngasUsed: ' + tx1.gasUsed;
             ethereumEvents.innerHTML = information;
             ethereumBridgeContractStatus.innerHTML = 'Unstake call complete.';
         } catch (err) {
@@ -358,10 +358,10 @@ const initialize = () => {
             polygonBridgeContractStatus.innerHTML = 'Initi transfer to ethereum call';
             const tx1 = await contractPolygonBridgeInstance.methods.transferToEthereum(amountBridgePolygon.value).send({ from: window.ethereum.selectedAddress });
             let information = 'transactionHash: ' + tx1.transactionHash;
-            information += 'blockHash ' + tx1.blockHash;
-            information += 'from: ' + tx1.from;
-            information += 'to: ' + tx1.to;
-            information += 'gasUsed: ' + tx1.gasUsed;
+            information += '\nblockHash ' + tx1.blockHash;
+            information += '\nfrom: ' + tx1.from;
+            information += '\nto: ' + tx1.to;
+            information += '\ngasUsed: ' + tx1.gasUsed;
             polygonEvents.innerHTML = information;
             polygonBridgeContractStatus.innerHTML = 'Transfer to ethereum call complete.';
         } catch (err) {
@@ -392,10 +392,10 @@ const initialize = () => {
             let data = await getEventsMint();
             const tx1 = await contractPolygonBridgeInstance.methods.mintTo(data._from, data._tokenAmount).send({ from: window.ethereum.selectedAddress });
             let information = 'transactionHash: ' + tx1.transactionHash;
-            information += 'blockHash ' + tx1.blockHash;
-            information += 'from: ' + tx1.from;
-            information += 'to: ' + tx1.to;
-            information += 'gasUsed: ' + tx1.gasUsed;
+            information += '\nblockHash ' + tx1.blockHash;
+            information += '\nfrom: ' + tx1.from;
+            information += '\nto: ' + tx1.to;
+            information += '\ngasUsed: ' + tx1.gasUsed;
             polygonEvents.innerHTML = information;
             polygonBridgeContractStatus.innerHTML = 'Mint to call complete.';
         } catch (err) {
@@ -446,10 +446,10 @@ const initialize = () => {
             erc20EthereumContractStatus.innerHTML = 'Init approve';
             const tx1 = await contractERC20EthereumInstance.methods.approve(addressToERC20Ethereum.value, amountERC20Ethereum.value).send({ from: window.ethereum.selectedAddress });
             let information = 'transactionHash: ' + tx1.transactionHash;
-            information += 'blockHash ' + tx1.blockHash;
-            information += 'from: ' + tx1.from;
-            information += 'to: ' + tx1.to;
-            information += 'gasUsed: ' + tx1.gasUsed;
+            information += '\nblockHash ' + tx1.blockHash;
+            information += '\nfrom: ' + tx1.from;
+            information += '\nto: ' + tx1.to;
+            information += '\ngasUsed: ' + tx1.gasUsed;
             ethereumEvents.innerHTML = information;
             erc20EthereumContractStatus.innerHTML = 'Approve complete';
         } catch (err) {
@@ -462,10 +462,10 @@ const initialize = () => {
             erc20EthereumContractStatus.innerHTML = 'Init transfer';
             const tx1 = await contractERC20EthereumInstance.methods.transfer(addressToERC20Ethereum.value, amountERC20Ethereum.value).send({ from: window.ethereum.selectedAddress });
             let information = 'transactionHash: ' + tx1.transactionHash;
-            information += 'blockHash ' + tx1.blockHash;
-            information += 'from: ' + tx1.from;
-            information += 'to: ' + tx1.to;
-            information += 'gasUsed: ' + tx1.gasUsed;
+            information += '\nblockHash ' + tx1.blockHash;
+            information += '\nfrom: ' + tx1.from;
+            information += '\nto: ' + tx1.to;
+            information += '\ngasUsed: ' + tx1.gasUsed;
             ethereumEvents.innerHTML = information;
             erc20EthereumContractStatus.innerHTML = 'Transfer complete';
         } catch (err) {
@@ -527,10 +527,10 @@ const initialize = () => {
             erc20PolygonContractStatus.innerHTML = 'Init approve';
             const tx1 = await contractERC20PolygonInstance.methods.approve(addressToERC20Polygon.value, amountERC20Polygon.value).send({ from: window.ethereum.selectedAddress });
             let information = 'transactionHash: ' + tx1.transactionHash;
-            information += 'blockHash ' + tx1.blockHash;
-            information += 'from: ' + tx1.from;
-            information += 'to: ' + tx1.to;
-            information += 'gasUsed: ' + tx1.gasUsed;
+            information += '\nblockHash ' + tx1.blockHash;
+            information += '\nfrom: ' + tx1.from;
+            information += '\nto: ' + tx1.to;
+            information += '\ngasUsed: ' + tx1.gasUsed;
             polygonEvents.innerHTML = information;
             erc20PolygonContractStatus.innerHTML = 'Approve complete';
         } catch (err) {
