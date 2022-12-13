@@ -15,7 +15,7 @@ module.exports = {
     artifacts: "./artifacts"
   },
   networks: {
-  goerli: {
+   goerli: {
     chainId:  5,
     timeout:  20000,
     gasPrice: 8000000000,
@@ -26,11 +26,18 @@ module.exports = {
     accounts: [process.env.GOERLI_PRIVATE_OWNER, process.env.GOERLI_PRIVATE_TOKENVAULT]
   
   },
-   /*   ganache: {
+   mumbai: {
+    name:     "Mumbai",		
+    url:      process.env.MUMBAI_ACCESSPOINT_URL,
+    from:     process.env.MUMBAI_ACCOUNTOWNER,
+    accounts: [process.env.MUMBAI_PRIVATE_OWNER]
+  
+  },
+  ganache: {
       chainId: 1337,
       url: "http://127.0.0.1:7545",
       from: process.env.GANACHE_ACCOUNT,
       accounts: [process.env.GANACHE_PRIVATE_KEY, process.env.GANACHE_PRIVATE_KEY2, process.env.GANACHE_PRIVATE_KEY3, process.env.GANACHE_PRIVATE_KEY4, process.env.GANACHE_PRIVATE_KEY5, process.env.GANACHE_PRIVATE_KEY6, process.env.GANACHE_PRIVATE_KEY7]
-    },*/
+    },
   }
 };

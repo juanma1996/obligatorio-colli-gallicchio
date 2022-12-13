@@ -4,9 +4,7 @@ const { getContractAddress } = require('@ethersproject/address')
 // Contract to deploy
 const erc20EthereumPath = "contracts/ERC20_Ethereum.sol:ERC20_Ethereum";
 const exchangePath = "contracts/Exchange.sol:Exchange";
-const erc20PolygonPath = "contracts/ERC20_Polygon.sol:ERC20_Polygon";
 const bridgeEthereumPath = "contracts/Bridge_Ethereum.sol:Bridge_Ethereum";
-const bridgePolygonPath = "contracts/Bridge_Polygon.sol:Bridge_Polygon";
 
 async function main() {
 
@@ -21,9 +19,9 @@ async function main() {
     const [signer, tokenVault] = await ethers.getSigners();
     const confirmations_number  =  1;
     
-    //Get provider for testnet Ganache
-    const accessPoint_URL = process.env.GANACHE_URL;
-   
+    //Get provider for testnet GOERLI
+    const accessPoint_URL = process.env.GOERLI_ACCESSPOINT_URL;
+
     const provider = new ethers.providers.JsonRpcProvider(accessPoint_URL);
 
     /// --------------------------------------------------------------------------------------------------
@@ -76,21 +74,6 @@ async function main() {
     /// --------------------------------------------------------------------------------------------------
 
     /// --------------------------------------------------------------------------------------------------
-    /// START ERC20 Polygon
-    /// --------------------------------------------------------------------------------------------------
-    const maxSupplyTokenPolygon = ethers.utils.parseEther("1000000");
-    const nameTokenPolygon = "Obli_TokenPol";
-    const symbolTokenPolygon = "OTKP";
-
-    // Deploy ERC20 Polygon
-    const contractFactoryErc20Polygon = await ethers.getContractFactory(erc20PolygonPath, signer);
-    erc20PolygonInstance = await contractFactoryErc20Polygon.deploy(nameTokenPolygon, symbolTokenPolygon, maxSupplyTokenPolygon);
-
-    /// --------------------------------------------------------------------------------------------------
-    /// FINISH ERC20 Polygon
-    /// --------------------------------------------------------------------------------------------------
-
-    /// --------------------------------------------------------------------------------------------------
     /// START BRIDGE ETHEREUM
     /// -------------------------------------------------------------------------------------------------
 
@@ -102,27 +85,11 @@ async function main() {
     /// FINISH BRIDGE ETHEREUM
     /// --------------------------------------------------------------------------------------------------
 
-    /// --------------------------------------------------------------------------------------------------
-    /// START POLYGON ETHEREUM
-    /// -------------------------------------------------------------------------------------------------
-
-    // Deploy BRIDGE Polygon
-    const polygonBridgeContractFactory = await ethers.getContractFactory(bridgePolygonPath, signer);
-    polygonBridgeInstance = await polygonBridgeContractFactory.deploy(erc20PolygonInstance.address);
-
-    /// --------------------------------------------------------------------------------------------------
-    /// FINISH BRIDGE POLYGON
-    /// --------------------------------------------------------------------------------------------------
-
     console.log("-- ERC20 Ethereum Address:", erc20EthereumInstance.address);
     console.log("---------------------------------------------------------------------------------------");
     console.log("-- Exchange Address:", exchangeInstance.address);
     console.log("---------------------------------------------------------------------------------------");
-    console.log("-- ERC20 Polygon Address:", erc20PolygonInstance.address);
-    console.log("---------------------------------------------------------------------------------------");
     console.log("-- Ethereum Bridge Address:", ethereumBridgeInstance.address);
-    console.log("---------------------------------------------------------------------------------------");
-    console.log("-- Polygon Bridge Address:", polygonBridgeInstance.address);
     console.log("---------------------------------------------------------------------------------------");
     console.log("-- SIGNER Address:", signer.address);
     console.log("---------------------------------------------------------------------------------------");
