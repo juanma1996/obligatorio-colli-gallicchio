@@ -123,7 +123,7 @@ BRF:8
 BRH:8
 end_of_record
 TN:
-SF:E:\Repos\Universidad_ORT\Programacion_de_Contratos_Inteligentes\Obligatorio\obligatorio-colli-gallicchio\contracts\BridgeAbstract.sol
+SF:C:\Users\juanm\OneDrive\Documents\ORT\Blockchain 2\Obligatorio\obligatorio-colli-gallicchio\contracts\BridgeAbstract.sol
 FN:15,constructor
 FN:20,owner
 FN:24,erc20Contract
@@ -200,7 +200,7 @@ BRF:16
 BRH:16
 end_of_record
 TN:
-SF:E:\Repos\Universidad_ORT\Programacion_de_Contratos_Inteligentes\Obligatorio\obligatorio-colli-gallicchio\contracts\ERC20_Ethereum.sol
+SF:C:\Users\juanm\OneDrive\Documents\ORT\Blockchain 2\Obligatorio\obligatorio-colli-gallicchio\contracts\ERC20_Ethereum.sol
 FN:9,constructor
 FN:30,transfer
 FNF:2
@@ -224,7 +224,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:E:\Repos\Universidad_ORT\Programacion_de_Contratos_Inteligentes\Obligatorio\obligatorio-colli-gallicchio\contracts\ERC20_Polygon.sol
+SF:C:\Users\juanm\OneDrive\Documents\ORT\Blockchain 2\Obligatorio\obligatorio-colli-gallicchio\contracts\ERC20_Polygon.sol
 FN:12,constructor
 FN:28,mint
 FN:46,burn
@@ -461,7 +461,7 @@ BRF:42
 BRH:40
 end_of_record
 TN:
-SF:E:\Repos\Universidad_ORT\Programacion_de_Contratos_Inteligentes\Obligatorio\obligatorio-colli-gallicchio\contracts\interfaces\ITokenContract.sol
+SF:C:\Users\juanm\OneDrive\Documents\ORT\Blockchain 2\Obligatorio\obligatorio-colli-gallicchio\contracts\interfaces\ITokenContract.sol
 FNF:0
 FNH:0
 LF:0
@@ -470,7 +470,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:E:\Repos\Universidad_ORT\Programacion_de_Contratos_Inteligentes\Obligatorio\obligatorio-colli-gallicchio\contracts\interfaces\ITokenContractPolygon.sol
+SF:C:\Users\juanm\OneDrive\Documents\ORT\Blockchain 2\Obligatorio\obligatorio-colli-gallicchio\contracts\interfaces\ITokenContractPolygon.sol
 FNF:0
 FNH:0
 LF:0

@@ -1,0 +1,273 @@
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Colli - Gallicchio</title>
+  <link rel="icon" type="image/svg" href="metamask-fox.svg" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.14.1/css/mdb.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="index.css" type="text/css" />
+</head>
+
+<body>
+  <main class="container-fluid">
+    <header>
+      <div id="logo-container">
+        <h1 id="logo-text" class="text-center">
+          Colli - Gallicchio
+        </h1>
+
+        <img id="mm-logo" src="metamask-fox.svg" />
+      </div>
+    </header>
+
+    <!-- Part 1 Setting up Basic Actions and Status-->
+    <section>
+      <h3 class="card-title">Status</h3>
+      <div class="row">
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+          <p class="info-text alert alert-primary">Network: <span id="network"></span></p>
+        </div>
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+          <p class="info-text alert alert-secondary">ChainId: <span id="chainId"></span></p>
+        </div>
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+          <p class="info-text alert alert-success">Accounts: <span id="accounts"></span></p>
+        </div>
+
+      </div>
+    </section>
+
+    <section>
+      <div class="row d-flex justify-content-center">
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Basic Actions</h4>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="connectButton" disabled></button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="getAccounts">eth_accounts</button>
+              <p class="info-text alert alert-secondary">eth_accounts result: <span id="getAccountsResult"></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- /Part 1 -->
+
+    <section>
+      <div class="row">
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">
+                Ethereum Bridge Contract
+              </h4>
+
+              <div class="form-group">
+                <label>Contract address</label>
+                <input class="form-control" type="text" id="ethereumBridgeAddress">
+              </div>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3"
+                id="btnInstanciateEthereumBridgeContract">Instanciate</button>
+
+              <p class="info-text alert alert-secondary">
+                Contract Status: <span id="ethereumBridgeContractStatus">Not clicked</span>
+              </p>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnTransferToPolygon">Transfer to
+                polygon</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnUnstake">Unstake</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnTokenStaking">Token staking</button>
+              <div class="form-group">
+                <label>Address to</label>
+                <input class="form-control" type="text" id="addressToEthereumBridge">
+              </div>
+              <div class="form-group">
+                <label>Amount</label>
+                <input class="form-control" type="text" id="amountBridgeEthereum">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">
+                Ethereum bridge events
+              </h4>
+
+              <span id="ethereumEvents">Nothing happened yet</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">
+                ERC-20 Ethereum Contract
+              </h4>
+
+              <div class="form-group">
+                <label>Contract address</label>
+                <input class="form-control" type="text" id="erc20EthereumAddress">
+              </div>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3"
+                id="btnInstanciateERC20EthereumContract">Instanciate</button>
+
+              <p class="info-text alert alert-secondary">
+                Contract Status: <span id="erc20EthereumContractStatus">Not clicked</span>
+              </p>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnApproveERC20Eth">Approve</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnTransferERC20Eth">Transfer</button>
+
+              <div class="form-group">
+                <label>Address to</label>
+                <input class="form-control" type="text" id="addressToErc20Ethereum">
+              </div>
+              <div class="form-group">
+                <label>Amount</label>
+                <input class="form-control" type="text" id="amountERC20Ethereum">
+              </div>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnBalanceERC20Ethereum">Balance of</button>
+              <p class="info-text alert alert-secondary">Balance of: <span id="erc20EthereumBalanceOf">Not clicked</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="row">
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">
+                Polygon Bridge Contract
+              </h4>
+
+              <div class="form-group">
+                <label>Contract address</label>
+                <input class="form-control" type="text" id="polygonBridgeAddress">
+              </div>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3"
+                id="btnInstanciatePolygonBridgeContract">Instanciate</button>
+
+              <p class="info-text alert alert-secondary">
+                Contract Status: <span id="polygonBridgeContractStatus">Not clicked</span>
+              </p>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnMintTo">Mint to</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnTransferToEthereum">Transfer to
+                ethereum</button>
+                <div class="form-group">
+                  <label>Amount</label>
+                  <input class="form-control" type="text" id="amountBridgePolygon">
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">
+                Polygon bridge events
+              </h4>
+
+              <span id="polygonEvents">Nothing happened yet</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">
+                ERC-20 Polygon Contract
+              </h4>
+
+              <div class="form-group">
+                <label>Contract address</label>
+                <input class="form-control" type="text" id="erc20PolygonAddress">
+              </div>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3"
+                id="btnInstanciateERC20PolygonContract">Instanciate</button>
+
+              <p class="info-text alert alert-secondary">
+                Contract Status: <span id="erc20PolygonContractStatus">Not clicked</span>
+              </p>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnApproveERC20Polygon">Approve</button>
+
+              <div class="form-group">
+                <label>Address to</label>
+                <input class="form-control" type="text" id="addressToErc20Polygon">
+              </div>
+
+              <div class="form-group">
+                <label>Amount</label>
+                <input class="form-control" type="text" id="amountERC20Polygon">
+              </div>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnBalanceERC20Polygon">Balance of</button>
+              <p class="info-text alert alert-secondary">Balance of: <span id="erc20PolygonBalanceOf">Not clicked</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="row">
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">
+                Exchange Contract
+              </h4>
+
+              <div class="form-group">
+                <label>Contract address</label>
+                <input class="form-control" type="text" id="exchangeAddress">
+              </div>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3"
+                id="btnInstanciateExchangeContract">Instanciate</button>
+
+              <p class="info-text alert alert-secondary">
+                Contract Status: <span id="exchangeContractStatus">Not clicked</span>
+              </p>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnGetExchangeRate">Get Exchange Rate</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnCalculateEtherAmount">Calculate Ether Amount</button>
+              <div class="form-group">
+                <label>Amount</label>
+                <input class="form-control" type="text" id="amountExchange">
+              </div>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnInvariant">Invariant</button>
+              <p class="info-text alert alert-secondary">Result: <span id="exchangeContractResult">Not clicked</span>
+              </p>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="node_modules/@metamask/onboarding/dist/metamask-onboarding.bundle.js" defer></script>
+  <script src="index.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+</body>
+
+</html>
