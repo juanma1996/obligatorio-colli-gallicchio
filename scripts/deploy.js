@@ -54,7 +54,7 @@ async function main() {
         const transactionCount = await signer.getTransactionCount()
             const futureAddress = getContractAddress({
                 from: signer.address,
-                nonce: transactionCount + 3
+                nonce: transactionCount + 2
             })
 
         const tx = await erc20EthereumInstance.approve(futureAddress, amountTokenToStartPool);
