@@ -95,7 +95,7 @@ abstract contract TokenAbstract {
         string memory _methodName = 'transferFrom';
         _isZeroAddress(_from, _methodName, '_from');
         _isZeroAddress(_to, _methodName, '_to');
-        _isZeroAmount(_value, _methodName, '_value');
+        _isZeroValue(_value, _methodName, '_value');
         _isValidRecipient(_from, _to, _methodName);
         _hasSufficientBalance(_from, _value, _methodName);
         _isAuthorized(_from, msg.sender, _value, _methodName);
@@ -149,13 +149,6 @@ abstract contract TokenAbstract {
     }
 
     function _isZeroValue(uint256 _value, string memory _methodName, string memory _parameterName) internal virtual pure {
-        if (_value == 0) {
-            string memory _message = _concatMessage(_methodName, " - Invalid parameter: ", _parameterName);
-            revert(_message);
-        }
-    }
-
-    function _isZeroAmount(uint256 _value, string memory _methodName, string memory _parameterName) internal virtual pure {
         if (_value == 0) {
             string memory _message = _concatMessage(_methodName, " - Invalid parameter: ", _parameterName);
             revert(_message);

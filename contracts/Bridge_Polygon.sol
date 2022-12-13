@@ -111,7 +111,7 @@ contract Bridge_Polygon is BridgeAbstract
 
     function transferFromTokenContract(address _from, address _to, uint256 _value, address _erc20Polygon) private  
     {
-            ITokenContract(_erc20Polygon).transferFrom(_from, _to,_value);
+            ITokenContractPolygon(_erc20Polygon).transferFrom(_from, _to,_value);
     }
 
 }

@@ -7,5 +7,4 @@ interface ITokenContract {
     function transfer(address _to, uint256 _value) external;
     function allowance(address _owner, address _spender) external view returns (uint256);
     function maxSupply() external view returns (uint256);
-    function totalSupply() external view returns (uint256);
 }

@@ -47,7 +47,7 @@ contract ERC20_Polygon is TokenAbstract
         // Checks
         string memory _methodName = 'burn';
         _isZeroAddress(msg.sender, _methodName, '_from');
-        _isZeroAmount(_value, _methodName, '_value');
+        _isZeroValue(_value, _methodName, '_value');
         _hasSufficientBalance(msg.sender, _value, _methodName);
 
         // Effects
