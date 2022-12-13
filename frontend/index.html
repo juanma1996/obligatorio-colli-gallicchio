@@ -84,6 +84,10 @@
                 <label>Address to</label>
                 <input class="form-control" type="text" id="addressToEthereumBridge">
               </div>
+              <div class="form-group">
+                <label>Amount</label>
+                <input class="form-control" type="text" id="amountBridgeEthereum">
+              </div>
             </div>
           </div>
         </div>
@@ -126,7 +130,10 @@
                 <label>Address to</label>
                 <input class="form-control" type="text" id="addressToErc20Ethereum">
               </div>
-
+              <div class="form-group">
+                <label>Amount</label>
+                <input class="form-control" type="text" id="amountERC20Ethereum">
+              </div>
               <button class="btn btn-primary btn-lg btn-block mb-3" id="btnBalanceERC20Ethereum">Balance of</button>
               <p class="info-text alert alert-secondary">Balance of: <span id="erc20EthereumBalanceOf">Not clicked</span>
               </p>
@@ -160,6 +167,10 @@
               <button class="btn btn-primary btn-lg btn-block mb-3" id="btnMintTo">Mint to</button>
               <button class="btn btn-primary btn-lg btn-block mb-3" id="btnTransferToEthereum">Transfer to
                 ethereum</button>
+                <div class="form-group">
+                  <label>Amount</label>
+                  <input class="form-control" type="text" id="amountBridgePolygon">
+                </div>
             </div>
           </div>
         </div>
@@ -196,16 +207,57 @@
               </p>
 
               <button class="btn btn-primary btn-lg btn-block mb-3" id="btnApproveERC20Polygon">Approve</button>
-              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnTransferERC20Polygon">Transfer</button>
 
               <div class="form-group">
                 <label>Address to</label>
                 <input class="form-control" type="text" id="addressToErc20Polygon">
               </div>
 
+              <div class="form-group">
+                <label>Amount</label>
+                <input class="form-control" type="text" id="amountERC20Polygon">
+              </div>
+
               <button class="btn btn-primary btn-lg btn-block mb-3" id="btnBalanceERC20Polygon">Balance of</button>
               <p class="info-text alert alert-secondary">Balance of: <span id="erc20PolygonBalanceOf">Not clicked</span>
               </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="row">
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">
+                Exchange Contract
+              </h4>
+
+              <div class="form-group">
+                <label>Contract address</label>
+                <input class="form-control" type="text" id="exchangeAddress">
+              </div>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3"
+                id="btnInstanciateExchangeContract">Instanciate</button>
+
+              <p class="info-text alert alert-secondary">
+                Contract Status: <span id="exchangeContractStatus">Not clicked</span>
+              </p>
+
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnGetExchangeRate">Get Exchange Rate</button>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnCalculateEtherAmount">Calculate Ether Amount</button>
+              <div class="form-group">
+                <label>Amount</label>
+                <input class="form-control" type="text" id="amountExchange">
+              </div>
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="btnInvariant">Invariant</button>
+              <p class="info-text alert alert-secondary">Result: <span id="exchangeContractResult">Not clicked</span>
+              </p>
+
             </div>
           </div>
         </div>
