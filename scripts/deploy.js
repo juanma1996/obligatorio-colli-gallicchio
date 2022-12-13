@@ -51,7 +51,7 @@ async function main() {
 
     // Deploy EXCHANGE
         const amountToTokenVault = ethers.utils.parseEther("250000");
-        const amount= ethers.utils.parseEther("100");
+        const amount= ethers.utils.parseEther("2");
         const amountTokenToStartPool = ethers.utils.parseEther("250000");
 
         const exchangeContractFactory = await ethers.getContractFactory(exchangePath, signer);

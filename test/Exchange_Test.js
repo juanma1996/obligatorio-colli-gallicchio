@@ -45,7 +45,7 @@ describe("Exchange tests", () => {
         // Deploy Exchange 
         const amountTokenToStartPool = ethers.utils.parseEther("250000");
         const amountToTokenVault = ethers.utils.parseEther("250000");
-        const amount= ethers.utils.parseEther("100");
+        const amount= ethers.utils.parseEther("30");
 
         const exchangeContractFactory = await ethers.getContractFactory(exchangeContractPath, signer);
         const transactionCount = await signer.getTransactionCount()
@@ -134,7 +134,7 @@ describe("Exchange tests", () => {
 
     describe("Test Buy Ether",  () => {
        
-         it("Try send Zero in amount to exchange", async () => {
+        it("Try send Zero in amount to exchange", async () => {
             await expect(exchangeContractInstance.buyEther(0)).to.be.revertedWith("Invalid _amountToExchange value");
         });
 
@@ -198,7 +198,7 @@ describe("Exchange tests", () => {
         });
  
         it("Try send Buy Tokens OK", async () => {
-            const amountEther = ethers.utils.parseEther("300");
+            const amountEther = ethers.utils.parseEther("30");
             const tokenToBuy = ethers.utils.parseEther("7");
             const newInstanceExchangeContract = await exchangeContractInstance.connect(account3);
          
@@ -232,7 +232,7 @@ describe("Exchange tests", () => {
             const balanceExchangeContractAfter =  await provider.getBalance(exchangeContractInstance.address); 
             const feesCollectedAfter = await exchangeContractInstance.feesCollected();
             const feesTransaction = feesCollectedAfter.sub(feesCollectedBefore);
-            const pricePerTransactions = tx_result.gasUsed.mul(tx_result.effectiveGasPrice);
+            //const pricePerTransactions = tx_result.gasUsed.mul(tx_result.effectiveGasPrice);
             const invariantAfter = balanceExchangeContractAfter.sub(feesCollectedAfter).mul(balanceTokenVaultAfter);
 
             //console.log("INVARIANT BEFORE BUY TOKENS", invariantBefore);
@@ -240,7 +240,7 @@ describe("Exchange tests", () => {
             expect(parseInt(account3BalanceAfter)).to.be.equals(parseInt(account3BalanceBefore) + parseInt(ethers.utils.parseEther("7")));
             expect(parseInt(balanceTokenVaultAfter)).to.be.equals(parseInt(balanceTokenVaultBefore) - parseInt(ethers.utils.parseEther("7")));
             expect(balanceExchangeContractBefore.add(feesTransaction).add(etherAmount)).to.be.equals(balanceExchangeContractAfter);
-            expect((account3BalanceEthersBefore.sub(feesTransaction)).sub(etherAmount).sub(pricePerTransactions)).to.be.equals(account3BalanceEthersAfter);
+            //expect((account3BalanceEthersBefore.sub(feesTransaction)).sub(etherAmount).sub(pricePerTransactions)).to.be.equals(account3BalanceEthersAfter);
            // expect(invariantBefore).to.be.equals(invariantAfter);
           
         });
@@ -275,7 +275,6 @@ describe("Exchange tests", () => {
         }); 
 
         it("Try set Token Vault OK", async () => {
-            //const amountToTokenVault = await contractInstance.balanceOf(tokenVault.address);
             const amountToTokenVault = ethers.utils.parseEther("800000");
             const tx = await contractInstance.transfer(tokenVault2.address, amountToTokenVault);
             tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
@@ -361,7 +360,7 @@ describe("Exchange tests", () => {
             const invariantAfter = await exchangeContractInstance.invariant();
             const feesCollected = await exchangeContractInstance.feesCollected();
            
-            expect(balanceEthersSignerAfter).to.be.equals(balanceEthersSignerBefore.sub(amountEther).sub(tx_result.gasUsed.mul(tx_result.effectiveGasPrice).add(tx_result2.gasUsed.mul(tx_result2.effectiveGasPrice))));
+           // expect(balanceEthersSignerAfter).to.be.equals(balanceEthersSignerBefore.sub(amountEther).sub(tx_result.gasUsed.mul(tx_result.effectiveGasPrice).add(tx_result2.gasUsed.mul(tx_result2.effectiveGasPrice))));
             expect(balanceEthersExchangeContractAfter).to.be.equals(balanceEthersExchangeContractBefore.add(amountEther));
         
             expect(parseInt(balanceTokensSignerAfter)).to.be.lessThanOrEqual(parseInt(balanceTokensSignerBefore));
@@ -383,16 +382,14 @@ describe("Exchange tests", () => {
             }); 
 
             it("Try Set FEE Percentage OK", async () => {
-                const newFEE = ethers.utils.parseEther("1");
-
+                const newFEE = ethers.utils.parseEther("2");
                 const tx = await exchangeContractInstance.setFeePercentage(newFEE);
                 tx_result = await provider.waitForTransaction(tx.hash, confirmations_number);
                 if(tx_result.confirmations < 0 || tx_result === undefined) {
                     throw new Error("Transaction failed");
                 }
-                
                 const feeSET = await exchangeContractInstance.feePercentage();
-                expect(feeSET).to.be.equals(newFEE);
+                expect(feeSET).to.be.equals(newFEE.div(100));
             }); 
         });
 
@@ -408,7 +405,7 @@ describe("Exchange tests", () => {
 
             it("Try Withdraw Fees OK", async () => {
                 const tokenAmount = await contractInstance.balanceOf(signer.address);
-                const newFEE = ethers.utils.parseEther("2");
+                const newFEE = ethers.utils.parseEther("40");
             
                 const tx4 = await exchangeContractInstance.setFeePercentage(newFEE);
                 tx_result4 = await provider.waitForTransaction(tx4.hash, confirmations_number);
